@@ -11,7 +11,7 @@ function register(cmd: Command) {
 // `help` lists everything in the registry.
 register({
   name: 'help',
-  description: 'List available commands',
+  description: 'Show all commands',
   handler: () => {
     const lines: OutputLine[] = [{ type: 'heading', text: 'Available commands' }];
     for (const name of Object.keys(registry).sort()) {
