@@ -21,8 +21,9 @@ function levenshtein(a: string, b: string): number {
 export function suggestCommand(input: string, names: string[]): string | null {
   let best: string | null = null;
   let bestDist = Infinity;
+  const lowerInput = input.toLowerCase();
   for (const name of names) {
-    const d = levenshtein(input.toLowerCase(), name);
+    const d = levenshtein(lowerInput, name.toLowerCase());
     if (d < bestDist) {
       bestDist = d;
       best = name;

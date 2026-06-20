@@ -11,4 +11,8 @@ describe('suggestCommand', () => {
   it('returns null when nothing is close', () => {
     expect(suggestCommand('zzzzzzzz', names)).toBeNull();
   });
+  it('matches case-insensitively against mixed-case names', () => {
+    expect(suggestCommand('PROJETS', ['Projects', 'Skills'])).toBe('Projects');
+    expect(suggestCommand('halp', ['HELP', 'ABOUT'])).toBe('HELP');
+  });
 });
