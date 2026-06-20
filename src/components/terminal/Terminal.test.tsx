@@ -8,7 +8,9 @@ describe('Terminal', () => {
     render(<Terminal onExit={vi.fn()} />);
     const input = screen.getByRole('textbox', { name: /terminal input/i });
     await userEvent.type(input, 'help{Enter}');
-    expect(await screen.findByText(/Available commands/i)).toBeInTheDocument();
+    // Target only the heading node — the help body also contains the substring
+    // "available commands" in the help row's description, so match exactly.
+    expect(await screen.findByText('Available commands', { exact: true })).toBeInTheDocument();
   });
 
   it('exit command calls onExit', async () => {
