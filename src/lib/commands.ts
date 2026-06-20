@@ -1,5 +1,6 @@
 import type { Command, CommandContext, OutputLine } from './types';
 import { suggestCommand } from './suggest';
+import { listFiles, readFile, ROOT_ENTRIES } from './vfs';
 
 export const registry: Record<string, Command> = {};
 
@@ -157,6 +158,28 @@ register({
   ],
 });
 
+register({
+  name: 'ls',
+  description: 'List files: ls [dir]',
+  handler: (args, ctx) => {
+    const files = listFiles(args[0], ctx.content);
+    if (files.length === 0) return [{ type: 'error', text: `ls: ${args[0]}: no such directory` }];
+    return [{ type: 'text', text: files.join('   ') }];
+  },
+});
+
+register({
+  name: 'cat',
+  description: 'Read a file: cat <file>',
+  handler: (args, ctx) => {
+    const path = args[0];
+    if (!path) return [{ type: 'error', text: 'usage: cat <file>' }];
+    const out = readFile(path, ctx.content);
+    if (!out) return [{ type: 'error', text: `cat: ${path}: no such file` }];
+    return out;
+  },
+});
+
 export const commandNames: string[] = [];
 
 export function runCommand(input: string, ctx: CommandContext): OutputLine[] {
@@ -181,3 +204,13 @@ export function refreshCommandNames() {
   commandNames.push(...Object.keys(registry).sort());
 }
 refreshCommandNames();
+
+// Argument-completion sources: which tokens complete after a given command.
+export function argCandidates(commandName: string, content: import('../data/content').Content): string[] {
+  if (commandName === 'cat') {
+    return [...ROOT_ENTRIES.filter((e) => !e.endsWith('/')), ...content.projects.map((p) => `projects/${p.slug}.md`)];
+  }
+  if (commandName === 'open') return content.projects.map((p) => p.slug);
+  if (commandName === 'ls') return ['projects/'];
+  return [];
+}
