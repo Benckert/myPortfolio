@@ -26,10 +26,11 @@ export function useMode() {
     localStorage.setItem(KEY, 'standard');
   }, []);
 
-  // global keyboard: Ctrl/Cmd+K opens, Escape closes
+  // global keyboard: Ctrl/Cmd+K opens (only from the standard site, so we don't
+  // swallow the browser's Ctrl/Cmd+K once the terminal is already open), Escape closes
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      if (mode === 'standard' && (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         open();
       } else if (e.key === 'Escape') {
@@ -38,7 +39,7 @@ export function useMode() {
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [open, close]);
+  }, [open, close, mode]);
 
   // react to hash changes (back/forward, shared links)
   useEffect(() => {
