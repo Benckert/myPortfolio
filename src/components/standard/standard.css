@@ -134,6 +134,9 @@
   pointer-events: auto;
 }
 .back-to-top:hover { border-color: var(--accent); }
+@media (prefers-reduced-motion: reduce) {
+  .back-to-top { transition: none; }
+}
 
 /* Skills */
 .skills__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }

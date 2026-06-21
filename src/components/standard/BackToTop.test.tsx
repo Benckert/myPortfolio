@@ -10,6 +10,7 @@ describe('BackToTop', () => {
       return 0;
     });
     Object.defineProperty(window, 'scrollY', { value: 0, writable: true, configurable: true });
+    window.scrollTo = vi.fn();
   });
 
   afterEach(() => {
@@ -35,7 +36,6 @@ describe('BackToTop', () => {
   });
 
   it('clicking calls window.scrollTo with top: 0', () => {
-    window.scrollTo = vi.fn();
     render(<BackToTop />);
     const btn = screen.getByRole('button', { name: /back to top/i });
 
