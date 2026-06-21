@@ -180,6 +180,19 @@
 .timeline__period { color: var(--accent); font-family: var(--font-mono); font-size: 13px; margin: 4px 0 8px; }
 .timeline__points { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.6; }
 
+/* Experience + Education two-column layout */
+.exp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: start; }
+.exp-col__label {
+  color: var(--accent); font-family: var(--font-mono); font-size: 14px;
+  margin: 0 0 22px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+}
+.exp-col--edu .exp-col__label { color: var(--accent-2); }
+.exp-col--edu .timeline__dot { background: var(--accent-2); }
+.exp-col--edu .timeline__period { color: var(--accent-2); }
+@media (max-width: 720px) {
+  .exp-grid { grid-template-columns: 1fr; gap: 8px; }
+}
+
 /* Projects */
 .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
 @media (max-width: 900px) { .cards { grid-template-columns: repeat(2, 1fr); } }

@@ -22,4 +22,10 @@ describe('content sections', () => {
       expect(screen.getByText(new RegExp(e.role, 'i'))).toBeInTheDocument();
     }
   });
+  it('Experience renders every education credential', () => {
+    render(<Experience />);
+    for (const e of content.education) {
+      expect(screen.getByText(new RegExp(e.credential, 'i'))).toBeInTheDocument();
+    }
+  });
 });

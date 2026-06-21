@@ -16,6 +16,13 @@ export interface Experience {
   points: string[];
 }
 
+export interface Education {
+  credential: string;
+  org: string;
+  period: string;
+  points?: string[];
+}
+
 export interface Socials {
   github?: string;
   linkedin?: string;
@@ -36,6 +43,7 @@ export interface Content {
   projects: Project[];
   skills: { languages: string[]; frameworks: string[]; tools: string[] };
   experience: Experience[];
+  education: Education[];
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -112,6 +120,20 @@ export const content: Content = {
       org: 'Another Company',
       period: '2024',
       points: ['Fixed bugs and added small features to a production codebase.'],
+    },
+  ],
+  education: [
+    {
+      credential: 'BSc in Computer Science',
+      org: 'University Name',
+      period: '2021 – 2024',
+      points: ['Relevant coursework: data structures, web development, databases.'],
+    },
+    {
+      credential: 'Front-end Web Development',
+      org: 'Course / Bootcamp Name',
+      period: '2024',
+      points: ['Project-based program focused on modern React and accessible UI.'],
     },
   ],
 };
