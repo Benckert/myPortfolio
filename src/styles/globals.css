@@ -1,20 +1,37 @@
+/* ─────────────────────────────────────────────────────────────
+   Design tokens — the single source of truth for the whole app.
+   Both the standard site and the terminal read from here; change a
+   value once and it propagates everywhere. Grouped by purpose.
+   ───────────────────────────────────────────────────────────── */
 :root {
+  /* Color — surfaces */
   --bg: #0b0f17;
   --bg-elev: #121826;
+  /* Color — text */
   --fg: #e6edf3;
   --muted: #93a1b1;
+  /* Color — brand accents */
   --accent: #5eead4;
   --accent-2: #818cf8;
-  --danger: #f87171;
+  /* Color — semantic state (--danger reserved for future error UI) */
   --success: #4ade80;
+  --danger: #f87171;
+  /* Color — lines */
   --border: #1f2937;
-  --radius: 14px;
+
+  /* Typography */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  /* Layout & sizing */
   --maxw: 1100px;
-  /* Sticky-nav height. Used here for scroll-snap math and by .nav__inner; these
-     must stay equal or sections land misaligned under the nav, so share a token. */
+  /* Sticky-nav height. Drives scroll-snap math (scroll-padding-top + section
+     min-height) and .nav__inner; these must stay equal or sections land
+     misaligned under the nav, so they share this one token. */
   --nav-h: 64px;
+
+  /* Shape */
+  --radius: 14px;
 }
 
 * { box-sizing: border-box; }
