@@ -93,3 +93,37 @@
 .timeline__role span { color: var(--muted); font-weight: 400; }
 .timeline__period { color: var(--accent); font-family: var(--font-mono); font-size: 13px; margin: 4px 0 8px; }
 .timeline__points { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.6; }
+
+/* Projects */
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+@media (max-width: 900px) { .cards { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .cards { grid-template-columns: 1fr; } }
+.card {
+  background: var(--bg-elev); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 22px;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.card:hover {
+  transform: translateY(-6px);
+  border-color: var(--accent);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+.card__top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.card__folder { color: var(--accent); font-size: 22px; }
+.card__links { display: flex; gap: 12px; font-family: var(--font-mono); font-size: 13px; }
+.card__title { margin: 0 0 8px; font-size: 20px; }
+.card__summary { color: var(--muted); line-height: 1.6; margin: 0 0 16px; }
+.card__stack { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.card__stack li { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+
+/* Contact */
+.section--contact { text-align: center; padding: 120px 0; }
+.contact__eyebrow { color: var(--accent); font-family: var(--font-mono); margin: 0 0 10px; }
+.contact__title { font-size: clamp(32px, 6vw, 56px); margin: 0 0 16px; }
+.contact__lead { color: var(--muted); max-width: 540px; margin: 0 auto 28px; line-height: 1.7; }
+.contact__socials { display: flex; gap: 20px; justify-content: center; margin-top: 22px; font-family: var(--font-mono); font-size: 14px; }
+
+/* Footer */
+.footer { border-top: 1px solid var(--border); padding: 28px 0; }
+.footer__inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; color: var(--muted); font-size: 13px; font-family: var(--font-mono); }
+.footer__term { background: none; border: none; color: var(--accent); cursor: pointer; font-family: var(--font-mono); font-size: 13px; }

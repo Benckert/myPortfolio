@@ -1,8 +1,11 @@
 import { Nav } from './Nav';
 import { Hero } from './Hero';
 import { About } from './About';
+import { Projects } from './Projects';
 import { Skills } from './Skills';
 import { Experience } from './Experience';
+import { Contact } from './Contact';
+import { Footer } from './Footer';
 import './standard.css';
 
 export function StandardSite({ onOpenTerminal }: { onOpenTerminal: () => void }) {
@@ -12,11 +15,12 @@ export function StandardSite({ onOpenTerminal }: { onOpenTerminal: () => void })
       <main>
         <Hero onOpenTerminal={onOpenTerminal} />
         <About />
-        {/* Projects added in Task 12 */}
+        <Projects />
         <Skills />
         <Experience />
-        {/* Contact + Footer added in Task 12 */}
+        <Contact />
       </main>
+      <Footer onOpenTerminal={onOpenTerminal} />
     </>
   );
 }
