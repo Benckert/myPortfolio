@@ -30,6 +30,7 @@ export interface Content {
     bio: string;
     location?: string;
     resumeUrl?: string;
+    portraitUrl?: string;
   };
   socials: Socials;
   projects: Project[];
@@ -49,6 +50,7 @@ export const content: Content = {
     bio: "Recently qualified web developer focused on the front end. I learn by building — most of what I know comes from shipping personal projects end to end, from design to deploy. I care about clean, accessible UI and the small details that make an interface feel good.",
     location: 'Your City, Country',
     resumeUrl: '/resume.pdf',
+    portraitUrl: '/portrait.svg',
   },
   socials: {
     github: 'https://github.com/yourhandle',
