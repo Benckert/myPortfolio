@@ -7,7 +7,7 @@ export function Projects() {
   return (
     <section id="projects" className="section">
       <div className="container">
-        <h2 className="section__title"><span>04.</span> Projects</h2>
+        <h2 className="section__title"><span>02.</span> Projects</h2>
         <p className="section__lead">A selection of things I&apos;ve designed and built.</p>
         <motion.div
           className="cards"
