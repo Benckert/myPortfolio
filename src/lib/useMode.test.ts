@@ -29,4 +29,38 @@ describe('useMode', () => {
     const { result } = renderHook(() => useMode());
     expect(result.current.mode).toBe('terminal');
   });
+
+  it('Ctrl+K opens the terminal', () => {
+    const { result } = renderHook(() => useMode());
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }));
+    });
+    expect(result.current.mode).toBe('terminal');
+  });
+
+  it('Cmd+K (metaKey) opens the terminal', () => {
+    const { result } = renderHook(() => useMode());
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }));
+    });
+    expect(result.current.mode).toBe('terminal');
+  });
+
+  it('plain backtick does NOT open the terminal', () => {
+    const { result } = renderHook(() => useMode());
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: '`', bubbles: true }));
+    });
+    expect(result.current.mode).toBe('standard');
+  });
+
+  it('Escape closes the terminal', () => {
+    const { result } = renderHook(() => useMode());
+    act(() => result.current.open());
+    expect(result.current.mode).toBe('terminal');
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    });
+    expect(result.current.mode).toBe('standard');
+  });
 });

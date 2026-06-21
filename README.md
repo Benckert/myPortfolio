@@ -3,7 +3,7 @@
 A personal developer portfolio with two modes:
 
 - **Standard site** — an animated, single-page portfolio (default).
-- **Terminal mode** — an interactive terminal (press the backtick `` ` `` key,
+- **Terminal mode** — an interactive terminal (press <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>K</kbd>,
   click `>_` in the nav, or open `#terminal`). Try `help`.
 
 Built with React + Vite + TypeScript and Framer Motion.

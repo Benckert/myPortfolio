@@ -26,12 +26,10 @@ export function useMode() {
     localStorage.setItem(KEY, 'standard');
   }, []);
 
-  // global keyboard: backtick opens, Escape closes
+  // global keyboard: Ctrl/Cmd+K opens, Escape closes
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      const target = e.target as HTMLElement | null;
-      const typing = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA');
-      if (e.key === '`' && !typing) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         open();
       } else if (e.key === 'Escape') {

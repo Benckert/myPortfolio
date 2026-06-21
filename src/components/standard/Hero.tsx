@@ -40,7 +40,11 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
             <a className="btn btn--ghost" href="#contact">Get in touch</a>
           </div>
           <button type="button" className="hero__hint" onClick={onOpenTerminal}>
-            <span className="hero__hint-key">`</span> psst — press backtick for terminal mode
+            {(() => {
+              const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/i.test(navigator.platform || navigator.userAgent);
+              const mod = isMac ? '⌘' : 'Ctrl';
+              return <>psst — press <kbd className="hero__hint-key">{mod}</kbd> <kbd className="hero__hint-key">K</kbd> for terminal mode</>;
+            })()}
           </button>
         </div>
         {portraitUrl && (
