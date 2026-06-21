@@ -18,7 +18,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-snap-type: y proximity;
+  scroll-snap-type: y mandatory;
   scroll-padding-top: 64px;
 }
 
@@ -30,7 +30,17 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-main > section { scroll-snap-align: start; }
+/* Each section is its own full-viewport "page" you swipe through. min-height
+   (not fixed height) lets content taller than the page grow instead of clip.
+   64px = sticky-nav height, matching scroll-padding-top. */
+main > section {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  min-height: calc(100svh - 64px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -41,7 +51,7 @@ a:hover { text-decoration: underline; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
+  html { scroll-behavior: auto; scroll-snap-type: none; }
   * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
 
