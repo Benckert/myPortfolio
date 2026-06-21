@@ -38,3 +38,9 @@ a:hover { text-decoration: underline; }
   html { scroll-behavior: auto; }
   * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
+
+.skip-link {
+  position: absolute; left: -999px; top: 0; z-index: 200;
+  background: var(--accent); color: #06231f; padding: 10px 14px; border-radius: 8px;
+}
+.skip-link:focus { left: 12px; top: 12px; }

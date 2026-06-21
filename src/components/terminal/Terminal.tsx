@@ -20,6 +20,11 @@ export function Terminal({ onExit }: { onExit: () => void }) {
   }, []);
 
   useEffect(() => {
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    return () => previouslyFocused?.focus?.();
+  }, []);
+
+  useEffect(() => {
     const el = scrollRef.current;
     if (el && typeof el.scrollTo === 'function') {
       el.scrollTo({ top: el.scrollHeight });

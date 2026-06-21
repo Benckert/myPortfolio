@@ -11,6 +11,7 @@ import './standard.css';
 export function StandardSite({ onOpenTerminal }: { onOpenTerminal: () => void }) {
   return (
     <>
+      <a className="skip-link" href="#home">Skip to content</a>
       <Nav onOpenTerminal={onOpenTerminal} />
       <main>
         <Hero onOpenTerminal={onOpenTerminal} />
