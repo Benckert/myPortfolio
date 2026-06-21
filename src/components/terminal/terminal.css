@@ -16,14 +16,69 @@
   background: #11161f;
   border-bottom: 1px solid #1f2733;
 }
-.term-dot { width: 12px; height: 12px; border-radius: 50%; }
+.term-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  border: none; padding: 0; cursor: pointer; flex-shrink: 0;
+}
 .term-dot--red { background: #ff5f57; }
 .term-dot--amber { background: #febc2e; }
 .term-dot--green { background: #28c840; }
 .term-title { margin-left: 10px; color: #8b949e; font-size: 13px; }
-.term-close {
-  margin-left: auto; background: none; border: none; color: #8b949e;
-  cursor: pointer; font-size: 14px;
+
+/* Windowed (zoomed) mode — constrain to a centered panel */
+.term-root--windowed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+}
+.term-root--windowed > .term-bar,
+.term-root--windowed > .term-screen,
+.term-root--windowed > .term-chips {
+  /* override via wrapper panel below */
+}
+/* Wrap inner content when windowed */
+.term-root--windowed::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: -1;
+}
+/* Windowed inner panel via grid trick — reflow bar+screen+chips into a constrained box */
+.term-root--windowed {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  max-width: 900px;
+  max-height: 80vh;
+  width: 100%;
+  margin: auto;
+  border-radius: 10px;
+  border: 1px solid var(--border, #1f2733);
+  position: fixed;
+  inset: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
+}
+
+/* Restore chip shown when minimized */
+.term-restore {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  background: #11161f;
+  border: 1px solid #1f2733;
+  border-radius: 999px;
+  color: #56d364;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 6px 20px;
+  cursor: pointer;
+  white-space: nowrap;
 }
 .term-screen {
   flex: 1;

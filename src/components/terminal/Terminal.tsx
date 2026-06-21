@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTerminal } from '../../lib/useTerminal';
 import { TerminalOutput } from './TerminalOutput';
 import { CommandChips } from './CommandChips';
@@ -14,6 +14,8 @@ export function Terminal({ onExit }: { onExit: () => void }) {
   const term = useTerminal({ onExit });
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [windowed, setWindowed] = useState(false);
+  const [minimized, setMinimized] = useState(false);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -57,16 +59,52 @@ export function Terminal({ onExit }: { onExit: () => void }) {
     inputRef.current?.focus();
   }
 
+  function handleRestore() {
+    setMinimized(false);
+    requestAnimationFrame(() => inputRef.current?.focus());
+  }
+
+  if (minimized) {
+    return (
+      <button
+        type="button"
+        className="term-restore"
+        aria-label="Restore terminal"
+        onClick={handleRestore}
+      >
+        {PROMPT.replace(':~$', '')}
+      </button>
+    );
+  }
+
   return (
-    <div className="term-root" role="dialog" aria-label="Interactive terminal" aria-modal="true">
+    <div
+      className={`term-root${windowed ? ' term-root--windowed' : ''}`}
+      role="dialog"
+      aria-label="Interactive terminal"
+      aria-modal="true"
+    >
       <div className="term-bar">
-        <span className="term-dot term-dot--red" />
-        <span className="term-dot term-dot--amber" />
-        <span className="term-dot term-dot--green" />
+        <button
+          type="button"
+          className="term-dot term-dot--red"
+          aria-label="Close terminal"
+          onClick={onExit}
+        />
+        <button
+          type="button"
+          className="term-dot term-dot--amber"
+          aria-label="Minimize terminal"
+          onClick={() => setMinimized(true)}
+        />
+        <button
+          type="button"
+          className="term-dot term-dot--green"
+          aria-label="Zoom terminal"
+          aria-pressed={windowed}
+          onClick={() => setWindowed((w) => !w)}
+        />
         <span className="term-title">{PROMPT.replace(':~$', '')}</span>
-        <button type="button" className="term-close" onClick={onExit} aria-label="Close terminal">
-          ✕
-        </button>
       </div>
 
       <div className="term-screen" ref={scrollRef} onClick={() => inputRef.current?.focus()}>
