@@ -12,7 +12,7 @@ export function Skills() {
   return (
     <section id="skills" className="section">
       <div className="container">
-        <h2 className="section__title"><span>02.</span> Skills</h2>
+        <h2 className="section__title"><span>04.</span> Skills</h2>
         <div className="skills__grid">
           {GROUPS.map((g) => (
             <motion.div

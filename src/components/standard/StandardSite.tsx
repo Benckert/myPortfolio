@@ -18,8 +18,8 @@ export function StandardSite({ onOpenTerminal }: { onOpenTerminal: () => void })
         <Hero onOpenTerminal={onOpenTerminal} />
         <About />
         <Projects />
-        <Skills />
         <Experience />
+        <Skills />
         <Contact />
       </main>
       <Footer onOpenTerminal={onOpenTerminal} />
