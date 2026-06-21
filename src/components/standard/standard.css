@@ -1,4 +1,8 @@
-.container { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+/* width:100% keeps the container a uniform --maxw in every context. Without it,
+   sections are flex columns (full-page paging) and .container's auto side-margins
+   disable align-items:stretch, so each container shrinks to its content width and
+   sections stop aligning with the nav. */
+.container { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 
 .btn {
   display: inline-block; padding: 12px 20px; border-radius: 12px;
@@ -86,7 +90,7 @@
 /* About */
 .about__layout {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 48px;
 }
 .about__content { flex: 1; min-width: 0; }
