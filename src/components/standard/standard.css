@@ -63,3 +63,33 @@
 .section__title { font-size: clamp(26px, 5vw, 40px); margin: 0 0 8px; }
 .section__title span { color: var(--accent); font-family: var(--font-mono); font-size: 0.6em; }
 .section__lead { color: var(--muted); max-width: 640px; margin: 0 0 36px; }
+
+/* About */
+.about__bio { font-size: 18px; color: var(--fg); max-width: 720px; line-height: 1.7; }
+.about__loc { color: var(--muted); margin-top: 16px; font-family: var(--font-mono); font-size: 14px; }
+
+/* Skills */
+.skills__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.skills__label { color: var(--accent); font-family: var(--font-mono); font-size: 14px; margin: 0 0 12px; }
+.skills__list { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+.skill-chip {
+  background: var(--bg-elev); border: 1px solid var(--border);
+  border-radius: 10px; padding: 8px 12px; font-size: 14px;
+}
+@media (max-width: 720px) { .skills__grid { grid-template-columns: 1fr; } }
+
+/* Experience timeline */
+.timeline { position: relative; padding-left: 28px; }
+.timeline::before {
+  content: ''; position: absolute; left: 7px; top: 4px; bottom: 4px;
+  width: 2px; background: var(--border);
+}
+.timeline__item { position: relative; padding-bottom: 32px; }
+.timeline__dot {
+  position: absolute; left: -28px; top: 6px; width: 14px; height: 14px;
+  border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px var(--bg);
+}
+.timeline__role { margin: 0; font-size: 18px; }
+.timeline__role span { color: var(--muted); font-weight: 400; }
+.timeline__period { color: var(--accent); font-family: var(--font-mono); font-size: 13px; margin: 4px 0 8px; }
+.timeline__points { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.6; }
