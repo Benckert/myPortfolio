@@ -72,6 +72,7 @@ export function Terminal({ onExit }: { onExit: () => void }) {
         aria-label="Restore terminal"
         onClick={handleRestore}
       >
+        <span className="term-restore-icon" aria-hidden="true">{'>_'}</span>
         {PROMPT.replace(':~$', '')}
       </button>
     );

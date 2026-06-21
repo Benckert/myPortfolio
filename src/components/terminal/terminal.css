@@ -25,42 +25,21 @@
 .term-dot--green { background: #28c840; }
 .term-title { margin-left: 10px; color: #8b949e; font-size: 13px; }
 
-/* Windowed (zoomed) mode — constrain to a centered panel */
+/* Windowed (zoomed) mode — shrink the full-screen overlay to a centered panel.
+   The base .term-root is a flex column (bar / screen / chips); we keep that and
+   just constrain its size and center it. The 100vmax box-shadow spread dims the
+   rest of the viewport around the panel (the standard site shows through). */
 .term-root--windowed {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.6);
-}
-.term-root--windowed > .term-bar,
-.term-root--windowed > .term-screen,
-.term-root--windowed > .term-chips {
-  /* override via wrapper panel below */
-}
-/* Wrap inner content when windowed */
-.term-root--windowed::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: -1;
-}
-/* Windowed inner panel via grid trick — reflow bar+screen+chips into a constrained box */
-.term-root--windowed {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  max-width: 900px;
-  max-height: 80vh;
-  width: 100%;
-  margin: auto;
-  border-radius: 10px;
-  border: 1px solid var(--border, #1f2733);
-  position: fixed;
-  inset: 0;
+  inset: auto;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
+  width: min(900px, 92vw);
+  height: 80vh;
+  border: 1px solid var(--border, #1f2733);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.6), 0 24px 64px rgba(0, 0, 0, 0.7);
 }
 
 /* Restore chip shown when minimized */
@@ -70,8 +49,11 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   background: #11161f;
-  border: 1px solid #1f2733;
+  border: 1px solid var(--border, #1f2733);
   border-radius: 999px;
   color: #56d364;
   font-family: var(--font-mono);
@@ -80,6 +62,7 @@
   cursor: pointer;
   white-space: nowrap;
 }
+.term-restore-icon { color: #8b949e; }
 .term-screen {
   flex: 1;
   overflow-y: auto;
