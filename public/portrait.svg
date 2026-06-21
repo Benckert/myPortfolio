@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5eead4" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#818cf8" stop-opacity="0.18"/>
+    </linearGradient>
+    <linearGradient id="figure-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5eead4"/>
+      <stop offset="100%" stop-color="#818cf8"/>
+    </linearGradient>
+    <clipPath id="circle-clip">
+      <circle cx="200" cy="200" r="200"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="200" cy="200" r="200" fill="#121826"/>
+
+  <!-- Subtle gradient overlay -->
+  <circle cx="200" cy="200" r="200" fill="url(#bg-grad)"/>
+
+  <!-- Subtle ring -->
+  <circle cx="200" cy="200" r="196" fill="none" stroke="url(#figure-grad)" stroke-width="1.5" opacity="0.4"/>
+
+  <!-- Head -->
+  <circle cx="200" cy="152" r="56" fill="url(#figure-grad)" opacity="0.9"/>
+
+  <!-- Shoulders / body silhouette -->
+  <path d="M 76 340 Q 76 252 200 252 Q 324 252 324 340 L 324 400 L 76 400 Z" fill="url(#figure-grad)" opacity="0.9" clip-path="url(#circle-clip)"/>
+</svg>

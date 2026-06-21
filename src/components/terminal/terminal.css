@@ -16,15 +16,53 @@
   background: #11161f;
   border-bottom: 1px solid #1f2733;
 }
-.term-dot { width: 12px; height: 12px; border-radius: 50%; }
+.term-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  border: none; padding: 0; cursor: pointer; flex-shrink: 0;
+}
 .term-dot--red { background: #ff5f57; }
 .term-dot--amber { background: #febc2e; }
 .term-dot--green { background: #28c840; }
 .term-title { margin-left: 10px; color: #8b949e; font-size: 13px; }
-.term-close {
-  margin-left: auto; background: none; border: none; color: #8b949e;
-  cursor: pointer; font-size: 14px;
+
+/* Windowed (zoomed) mode — shrink the full-screen overlay to a centered panel.
+   The base .term-root is a flex column (bar / screen / chips); we keep that and
+   just constrain its size and center it. The 100vmax box-shadow spread dims the
+   rest of the viewport around the panel (the standard site shows through). */
+.term-root--windowed {
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(900px, 92vw);
+  height: 80vh;
+  border: 1px solid var(--border, #1f2733);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.6), 0 24px 64px rgba(0, 0, 0, 0.7);
 }
+
+/* Restore chip shown when minimized */
+.term-restore {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #11161f;
+  border: 1px solid var(--border, #1f2733);
+  border-radius: 999px;
+  color: #56d364;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 6px 20px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.term-restore-icon { color: #8b949e; }
 .term-screen {
   flex: 1;
   overflow-y: auto;
@@ -44,6 +82,11 @@
   flex: 1; background: transparent; border: none; outline: none;
   color: #c9d1d9; font-family: var(--font-mono); font-size: 14px;
   caret-color: #56d364;
+}
+.term-input:focus,
+.term-input:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 .term-chips {
   display: none;

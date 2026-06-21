@@ -14,4 +14,10 @@ describe('Hero', () => {
     screen.getByRole('button', { name: /terminal mode/i }).click();
     expect(onOpen).toHaveBeenCalled();
   });
+  it('renders a portrait image with the profile name in its alt text', () => {
+    render(<Hero onOpenTerminal={vi.fn()} />);
+    expect(
+      screen.getByRole('img', { name: new RegExp(content.profile.name, 'i') }),
+    ).toBeInTheDocument();
+  });
 });
