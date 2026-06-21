@@ -19,7 +19,7 @@
   background: rgba(11, 15, 23, 0.7);
   border-bottom: 1px solid var(--border);
 }
-.nav__inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+.nav__inner { display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); }
 .nav__brand { font-family: var(--font-mono); font-weight: 700; color: var(--fg); }
 .nav__brand span { color: var(--accent); }
 .nav__links { display: flex; align-items: center; gap: 22px; }

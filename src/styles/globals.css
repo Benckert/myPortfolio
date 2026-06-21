@@ -12,6 +12,9 @@
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
   --maxw: 1100px;
+  /* Sticky-nav height. Used here for scroll-snap math and by .nav__inner; these
+     must stay equal or sections land misaligned under the nav, so share a token. */
+  --nav-h: 64px;
 }
 
 * { box-sizing: border-box; }
@@ -19,7 +22,7 @@
 html {
   scroll-behavior: smooth;
   scroll-snap-type: y mandatory;
-  scroll-padding-top: 64px;
+  scroll-padding-top: var(--nav-h);
 }
 
 body {
@@ -32,11 +35,11 @@ body {
 
 /* Each section is its own full-viewport "page" you swipe through. min-height
    (not fixed height) lets content taller than the page grow instead of clip.
-   64px = sticky-nav height, matching scroll-padding-top. */
+   --nav-h is the sticky-nav height, matching scroll-padding-top above. */
 main > section {
   scroll-snap-align: start;
   scroll-snap-stop: always;
-  min-height: calc(100svh - 64px);
+  min-height: calc(100svh - var(--nav-h));
   display: flex;
   flex-direction: column;
   justify-content: center;
