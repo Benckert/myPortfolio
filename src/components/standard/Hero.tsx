@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { content } from '../../data/content';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
+import { Lightbox } from './Lightbox';
 
 export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
   const reduced = usePrefersReducedMotion();
+  const [zoom, setZoom] = useState(false);
   const { name, tagline, portraitUrl } = content.profile;
 
   return (
@@ -54,12 +57,25 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.18 }}
           >
-            <img
-              className="hero__portrait"
+            <button
+              type="button"
+              className="portrait-btn"
+              onClick={() => setZoom(true)}
+              aria-label={`Enlarge portrait of ${name}`}
+            >
+              <img
+                className="hero__portrait"
+                src={portraitUrl}
+                alt={`Portrait of ${name}`}
+                width={320}
+                height={320}
+              />
+            </button>
+            <Lightbox
               src={portraitUrl}
               alt={`Portrait of ${name}`}
-              width={320}
-              height={320}
+              open={zoom}
+              onClose={() => setZoom(false)}
             />
           </motion.div>
         )}
