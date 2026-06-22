@@ -48,6 +48,23 @@ body {
   color: var(--fg);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  /* The site is read-only content, so suppress text selection/highlighting.
+     Re-enabled below for form fields (the terminal input) where typing lives. */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+input,
+textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Links get a pointer cursor by default; buttons don't. Make every button
+   (and anything acting as one) signal that it's interactive. */
+button,
+[role='button'] {
+  cursor: pointer;
 }
 
 /* Each section is its own full-viewport "page" you swipe through. min-height
