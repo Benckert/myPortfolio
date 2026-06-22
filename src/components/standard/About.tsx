@@ -40,13 +40,14 @@ export function About() {
                 onClick={() => setZoom(true)}
                 aria-label={`Enlarge portrait of ${name}`}
               >
-                <img
+                <motion.img
                   className="about__portrait"
                   src={portraitUrl}
                   alt={`Portrait of ${name}`}
                   width={240}
                   height={240}
                   loading="lazy"
+                  layoutId="portrait-about"
                 />
               </button>
               <Lightbox
@@ -54,6 +55,7 @@ export function About() {
                 alt={`Portrait of ${name}`}
                 open={zoom}
                 onClose={() => setZoom(false)}
+                layoutId="portrait-about"
               />
             </div>
           )}

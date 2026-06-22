@@ -254,7 +254,7 @@
    zoom-in cursor (overriding the generic button pointer) hints at expansion. */
 .portrait-btn {
   display: block; padding: 0; border: none; background: none;
-  border-radius: 50%; line-height: 0; cursor: zoom-in;
+  border-radius: 50%; line-height: 0; cursor: pointer;
 }
 .hero__portrait,
 .about__portrait {
@@ -273,14 +273,16 @@
 .lightbox {
   position: fixed; inset: 0; z-index: 120;
   display: flex; align-items: center; justify-content: center;
-  padding: 24px; cursor: zoom-out;
+  padding: 24px; cursor: pointer;
   background: rgba(5, 8, 13, 0.82);
   backdrop-filter: blur(6px);
 }
+/* Square box + object-fit:cover keeps it a clean circle for any source image,
+   matching the in-page portrait so the shared-layout morph stays circular. */
 .lightbox__img {
-  max-width: min(92vw, 560px); max-height: 88vh;
-  width: auto; height: auto; cursor: default;
-  border-radius: var(--radius); border: 2px solid var(--border);
+  width: min(80vmin, 460px); height: min(80vmin, 460px);
+  object-fit: cover; cursor: default;
+  border-radius: 50%; border: 2px solid var(--border);
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
 }
 .lightbox__close {

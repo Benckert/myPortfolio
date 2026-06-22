@@ -63,12 +63,13 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
               onClick={() => setZoom(true)}
               aria-label={`Enlarge portrait of ${name}`}
             >
-              <img
+              <motion.img
                 className="hero__portrait"
                 src={portraitUrl}
                 alt={`Portrait of ${name}`}
                 width={320}
                 height={320}
+                layoutId="portrait-hero"
               />
             </button>
             <Lightbox
@@ -76,6 +77,7 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
               alt={`Portrait of ${name}`}
               open={zoom}
               onClose={() => setZoom(false)}
+              layoutId="portrait-hero"
             />
           </motion.div>
         )}
