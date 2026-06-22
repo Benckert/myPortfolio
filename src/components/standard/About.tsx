@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { content } from '../../data/content';
 import { fadeUp, revealViewport } from '../../lib/motion';
+import { Lightbox } from './Lightbox';
 
 export function About() {
+  const [zoom, setZoom] = useState(false);
   const { bio, location, name, portraitUrl } = content.profile;
   return (
     <section id="about" className="section">
@@ -31,13 +34,26 @@ export function About() {
           </div>
           {portraitUrl && (
             <div className="about__portrait-wrap">
-              <img
-                className="about__portrait"
+              <button
+                type="button"
+                className="portrait-btn"
+                onClick={() => setZoom(true)}
+                aria-label={`Enlarge portrait of ${name}`}
+              >
+                <img
+                  className="about__portrait"
+                  src={portraitUrl}
+                  alt={`Portrait of ${name}`}
+                  width={240}
+                  height={240}
+                  loading="lazy"
+                />
+              </button>
+              <Lightbox
                 src={portraitUrl}
                 alt={`Portrait of ${name}`}
-                width={240}
-                height={240}
-                loading="lazy"
+                open={zoom}
+                onClose={() => setZoom(false)}
               />
             </div>
           )}

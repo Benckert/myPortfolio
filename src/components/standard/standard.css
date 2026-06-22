@@ -5,12 +5,22 @@
 .container { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 
 .btn {
+  position: relative; overflow: hidden;
   display: inline-block; padding: 12px 20px; border-radius: 12px;
   font-weight: 600; transition: transform 0.15s ease, background 0.15s ease;
 }
 .btn:hover { transform: translateY(-2px); text-decoration: none; }
 .btn--primary { background: var(--accent); color: #06231f; }
 .btn--ghost { border: 1px solid var(--border); color: var(--fg); }
+/* Glare: a diagonal highlight sweeps across the button on hover. */
+.btn::after {
+  content: ''; position: absolute; top: 0; left: -120%;
+  width: 60%; height: 100%; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.55s ease;
+}
+.btn:hover::after { left: 140%; }
 
 /* Nav */
 .nav {
@@ -165,6 +175,15 @@
 .skill-chip {
   background: var(--bg); border: 1px solid var(--border);
   border-radius: 10px; padding: 8px 12px; font-size: 14px;
+  transition: transform 0.15s ease, border-color 0.15s ease,
+    color 0.15s ease, background 0.15s ease;
+}
+/* Chips aren't clickable (no pointer cursor) but lift + highlight on hover. */
+.skill-chip:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  color: var(--fg);
+  background: var(--bg-elev);
 }
 @media (max-width: 720px) { .skills__grid { grid-template-columns: 1fr; } }
 
@@ -230,3 +249,55 @@
 .footer { border-top: 1px solid var(--border); padding: 28px 0; }
 .footer__inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; color: var(--muted); font-size: 13px; font-family: var(--font-mono); }
 .footer__term { background: none; border: none; color: var(--accent); cursor: pointer; font-family: var(--font-mono); font-size: 13px; }
+
+/* Clickable portraits — hover zooms/glows, click opens the lightbox. The
+   zoom-in cursor (overriding the generic button pointer) hints at expansion. */
+.portrait-btn {
+  display: block; padding: 0; border: none; background: none;
+  border-radius: 50%; line-height: 0; cursor: zoom-in;
+}
+.hero__portrait,
+.about__portrait {
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.portrait-btn:hover .hero__portrait,
+.portrait-btn:focus-visible .hero__portrait,
+.portrait-btn:hover .about__portrait,
+.portrait-btn:focus-visible .about__portrait {
+  transform: scale(1.04);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(94, 234, 212, 0.18), 0 18px 44px rgba(0, 0, 0, 0.45);
+}
+
+/* Lightbox — the expanded portrait shown on click. */
+.lightbox {
+  position: fixed; inset: 0; z-index: 120;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px; cursor: zoom-out;
+  background: rgba(5, 8, 13, 0.82);
+  backdrop-filter: blur(6px);
+}
+.lightbox__img {
+  max-width: min(92vw, 560px); max-height: 88vh;
+  width: auto; height: auto; cursor: default;
+  border-radius: var(--radius); border: 2px solid var(--border);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
+.lightbox__close {
+  position: fixed; top: 18px; right: 22px;
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-elev); border: 1px solid var(--border);
+  color: var(--fg); font-size: 18px; line-height: 1;
+}
+.lightbox__close:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Honour reduced-motion: drop the decorative glare and hover transforms. */
+@media (prefers-reduced-motion: reduce) {
+  .btn::after { display: none; }
+  .skill-chip:hover,
+  .portrait-btn:hover .hero__portrait,
+  .portrait-btn:focus-visible .hero__portrait,
+  .portrait-btn:hover .about__portrait,
+  .portrait-btn:focus-visible .about__portrait { transform: none; }
+}
