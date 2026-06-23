@@ -56,10 +56,12 @@ Vitest + Testing Library in a jsdom environment (`vite.config.ts`, `globals: tru
 
 ## Styling migration — in progress (follow-up)
 
-Tailwind v4 + shadcn were adopted on top of the existing hand-written CSS; the two **coexist** (see Architecture point 3). The existing components (`standard/`, `terminal/`) are **not yet** migrated to Tailwind utilities and still use their co-located `.css` files. Intended direction:
+Tailwind v4 + shadcn were adopted on top of the existing hand-written CSS; the two **coexist** (see Architecture point 3). **`Skills` (`src/components/standard/Skills.tsx`) is migrated** as the reference example; the other `standard/` + `terminal/` components still use their co-located `.css` files. Intended direction:
 
 - **New UI** → Tailwind utilities + shadcn primitives.
 - **Existing components** → migrate **incrementally**, only when you're already editing one (strangler pattern). A big-bang rewrite of `standard.css`/`terminal.css`/`lab.css` is deliberately deferred — those files use fluid `clamp()` typography, scroll-snap paging math, and keyframes that Tailwind expresses awkwardly, and a full rewrite is high-risk for a working, tested site with little functional payoff. Keep the design-token bridge as the shared source of truth.
+
+**When migrating a component, follow [`docs/tailwind-migration.md`](docs/tailwind-migration.md)** — it has the token→utility table, the patterns (fluid type, per-instance `--c` colour, Framer coexistence, `motion-reduce:`), and gotchas (preflight de-bolds headings; decouple tests from styling classes), using `Skills` as the worked example.
 
 ## Repo notes
 
