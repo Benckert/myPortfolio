@@ -6,6 +6,15 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+/* Tailwind's preflight resets headings to font-weight: inherit (400). The
+   hand-written CSS leans on the browser default bold for its section/card/
+   contact titles (only .hero__name sets weight explicitly), so restore it. */
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+  }
+}
+
 :root {
   /* Color — surfaces */
   --bg: #0b0f17;
