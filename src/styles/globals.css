@@ -3,6 +3,9 @@
    Both the standard site and the terminal read from here; change a
    value once and it propagates everywhere. Grouped by purpose.
    ───────────────────────────────────────────────────────────── */
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
 :root {
   /* Color — surfaces */
   --bg: #0b0f17;
@@ -97,3 +100,39 @@ a:hover { text-decoration: underline; }
   background: var(--accent); color: #06231f; padding: 10px 14px; border-radius: 8px;
 }
 .skip-link:focus { left: 12px; top: 12px; }
+
+/* ─────────────────────────────────────────────────────────────
+   Tailwind v4 + shadcn/ui bridge. shadcn components consume the
+   `--color-*` theme namespace; we map those onto the design tokens
+   above so generated components inherit the site's dark palette.
+   The bare tokens (--muted, --accent, …) keep their original meaning
+   for the hand-written CSS — only the `--color-*` utilities are new.
+   ───────────────────────────────────────────────────────────── */
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-card: var(--bg-elev);
+  --color-card-foreground: var(--fg);
+  --color-popover: var(--bg-elev);
+  --color-popover-foreground: var(--fg);
+  --color-primary: var(--accent);
+  --color-primary-foreground: #06231f;
+  --color-secondary: var(--bg-elev);
+  --color-secondary-foreground: var(--fg);
+  --color-muted: var(--bg-elev);
+  --color-muted-foreground: var(--muted);
+  --color-accent: var(--bg-elev);
+  --color-accent-foreground: var(--fg);
+  --color-destructive: var(--danger);
+  --color-destructive-foreground: #0b0f17;
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--accent);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
