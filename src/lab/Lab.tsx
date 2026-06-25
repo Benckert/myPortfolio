@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, Suspense } from 'react';
 import { categories, type Variant, type Category } from './effects';
 import { initBehaviors, initCursor, type CursorMode } from './behaviors';
+import { registry } from './registry';
 import './lab.css';
 
 type Bg = 'base' | 'elev' | 'spot';
@@ -10,7 +11,18 @@ type Amb = 'off' | 'aurora' | 'mesh' | 'grid' | 'gradient';
 const da = (d?: Record<string, string>) =>
   Object.fromEntries(Object.entries(d ?? {}).map(([k, v]) => [`data-${k}`, v]));
 
+function LibDemo({ v }: { v: Variant }) {
+  const C = registry[v.component!];
+  if (!C) return <span className="spec__missing">missing: {v.component}</span>;
+  return (
+    <Suspense fallback={<span className="spec__loading">loading…</span>}>
+      <C {...(v.props ?? {})}>{v.label}</C>
+    </Suspense>
+  );
+}
+
 function Demo({ kind, v }: { kind: Category['kind']; v: Variant }) {
+  if (v.source !== 'bespoke') return <LibDemo v={v} />;
   const cls = v.cls ?? '';
   const has = (s: string) => cls.includes(s);
   const style = v.style as React.CSSProperties | undefined;
