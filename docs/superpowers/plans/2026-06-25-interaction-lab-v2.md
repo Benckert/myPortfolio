@@ -19,7 +19,8 @@
 - **`@/` alias maps to `src/`** (`vite.config.ts` + `tsconfig.app.json` `paths`). Imports use `@/components/...`.
 - **Portrait asset is `/portrait.svg`** (in `public/`). There is no `portrait.jpg`. Use `/portrait.svg` for any image specimen.
 - **Reactbits prop names come from the fetched source.** The `props:` objects in this plan are the *intended configuration*; when wiring a component, reconcile prop names against the actual fetched component API and fix mismatches. This is normal, not a placeholder.
-- **WebGL/heavy specimens are lazy.** Any reactbits component whose fetched source imports `ogl`, `three`, `@react-three/*`, `gsap`, or `matter-js` MUST be registered via `React.lazy` and added to the `lazyKeys` set, never eager-imported.
+- **WebGL/3D/physics specimens are lazy.** Any reactbits component whose fetched source imports `ogl`, `three`, `@react-three/*`, or `matter-js` MUST be registered via `React.lazy` and added to the `lazyKeys` set, never eager-imported (these are heavy and hostile to jsdom). **`gsap` is exempt** — gsap-based text/UI widgets (e.g. SplitText, ScrambledText, TextType, possibly MagicBento) are small, render in bulk, and work in jsdom, so they are eager-imported. (Decision recorded during Task 3.)
+- **`three` / `@react-three/fiber` are EXCLUDED entirely.** `@react-three/fiber`'s global JSX namespace augmentation collapses React 19 intrinsic elements (`<p>`, `React.ElementType`, …) to `never` *project-wide* — and because `tsc -b` compiles every file under the `src/` include glob, merely having a three-importing file on disk breaks the build regardless of whether it is imported or lazy-loaded (lazy isolates runtime/bundle, not compile-time type augmentation). Therefore **prefer `ogl`-based reactbits components**; never add a component whose source imports `three`/`@react-three/*`/`drei`. (Decision recorded during Task 4: Beams + Silk — both three.js — were replaced with the ogl-based **LiquidChrome** and **Iridescence**.)
 - **Keep the existing 70 tests green** at every task boundary.
 - **Verify visually** at each family task using the chrome-devtools MCP against `http://localhost:5173/lab.html` (a dev server is already running; `navigate_page` → `take_snapshot`; `take_screenshot` only when a snapshot is insufficient).
 - **Reactbits fetch mechanism:** use the reactbits MCP `get_component_code` with `version: "ts-tailwind"`; if the tool isn't immediately listed, load it via tool search (`select:mcp__reactbits__get_component_code`). Save each to `src/components/reactbits/<Name>.tsx`, ensure a **default export**, and scan its imports for stray bare modules to `npm install`.
@@ -258,7 +259,7 @@ git commit -m "feat(lab): convert Headings (F) to reactbits text animations via 
 
 ### Task 4: Family G (Backgrounds) → reactbits backgrounds (lazy WebGL)
 
-Convert ambient backgrounds to reactbits. WebGL ones (Aurora, Particles, Beams, Silk, Threads) are **lazy** so the bench stays responsive; canvas/CSS-light ones (Waves, DotGrid, Squares) may be eager — decide per fetched-source imports (anything importing `ogl`/`three` is lazy).
+Convert ambient backgrounds to reactbits. **As built:** the WebGL ones — Aurora, Particles, LiquidChrome, Iridescence, Threads (all `ogl`) — are **lazy** so the bench stays responsive; the canvas/gsap-light ones (Waves, DotGrid, Squares) are eager. Beams + Silk (the originally-planned picks) were dropped: both import `three`/`@react-three/fiber`, which breaks the build project-wide (see Global Constraints) — they were replaced with the ogl-based **LiquidChrome** and **Iridescence**.
 
 **Components (fetch `ts-tailwind`):** Aurora, Particles, Beams, Silk, Waves, Threads, DotGrid, Squares.
 

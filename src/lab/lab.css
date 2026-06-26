@@ -328,6 +328,10 @@ body.rm *, body.rm *::before, body.rm *::after {
 .hd-stagger .ch { display: inline-block; opacity: 0; transform: translateY(0.4em); animation: charIn 0.5s forwards; }
 
 /* — backgrounds (framed tiles) — */
+/* Give the backgrounds section's specimen stage a fixed min-height so full-bleed
+   WebGL/canvas backgrounds have room to render. Scoped to #backgrounds only. */
+#backgrounds .spec__stage { min-height: 160px; }
+
 .bgtile { width: 100%; height: 110px; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid var(--border); }
 .bg-aurora { background: #0b0f17; }
 .bg-aurora::before { content: ''; position: absolute; inset: -40%; background: radial-gradient(closest-side, rgba(94, 234, 212, 0.5), transparent), radial-gradient(closest-side, rgba(129, 140, 248, 0.5), transparent); background-position: 20% 30%, 70% 60%; background-repeat: no-repeat; background-size: 55% 55%, 55% 55%; filter: blur(20px); animation: aurora 9s ease-in-out infinite alternate; }
