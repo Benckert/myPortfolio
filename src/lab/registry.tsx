@@ -34,6 +34,10 @@ import MagicBento from '@/components/reactbits/MagicBento';
 import PixelCard from '@/components/reactbits/PixelCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+// Portraits (Family B) — ProfileCard is react-only (pointer/CSS holographic
+// effect, no WebGL), so it loads eagerly like the other card treatments.
+import ProfileCard from '@/components/reactbits/ProfileCard';
+
 // Buttons (Family A) — all eager: shadcn Button is plain Tailwind, the three
 // reactbits effects use only React/motion (no WebGL), so none need lazy loading.
 import StarBorder from '@/components/reactbits/StarBorder';
@@ -63,6 +67,7 @@ export const registry: Record<string, ComponentType<any>> = {
   TiltedCard, SpotlightCard, MagicBento, PixelCard,
   ShadcnCard: ShadcnCardDemo,
   ShadcnButton, StarBorder, Magnet, GlareHover,
+  ProfileCard,
 };
 
 // Keys whose components are lazy-loaded (WebGL/3D/physics). LibDemo wraps these in Suspense.
