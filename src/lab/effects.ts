@@ -102,16 +102,13 @@ export const categories: Category[] = [
   },
   {
     id: 'cards', code: 'D', title: 'Project cards', kind: 'card',
-    desc: 'Surfaces for project tiles. Today the card just swaps its border colour on hover.',
+    desc: 'Surfaces for project tiles — shadcn Card as the base shell plus three reactbits card treatments.',
     variants: [
-      { code: c(1, 'CRD'), name: 'Shadow lift', blurb: 'Floats up with soft shadow.', source: 'bespoke', cls: 'cd-lift' },
-      { code: c(2, 'CRD'), name: 'Border glow', blurb: 'Accent outline + bloom.', source: 'bespoke', cls: 'cd-glow' },
-      { code: c(3, 'CRD'), name: 'Top accent', blurb: 'Accent line draws across top.', source: 'bespoke', cls: 'cd-top' },
-      { code: c(4, 'CRD'), name: 'Thumb zoom', blurb: 'Cover scales on hover.', source: 'bespoke', cls: 'cd-zoom' },
-      { code: c(5, 'CRD'), name: 'Spotlight', blurb: 'Glow follows the cursor.', source: 'bespoke', cls: 'cd-spot', data: { spotlight: '' }, js: true },
-      { code: c(6, 'CRD'), name: '3D tilt', blurb: 'Card tips under the cursor.', source: 'bespoke', cls: 'cd-tilt', data: { tilt: '8' }, js: true },
-      { code: c(7, 'CRD'), name: 'Gradient border', blurb: 'Rotating conic frame.', source: 'bespoke', cls: 'cd-gborder' },
-      { code: c(8, 'CRD'), name: 'Reveal CTA', blurb: 'Call-to-action slides up.', source: 'bespoke', cls: 'cd-reveal' },
+      { code: c(1, 'CRD'), name: 'shadcn Card', blurb: 'Base shadcn surface.', source: 'shadcn', component: 'ShadcnCard', install: 'npx shadcn@latest add card', siteTarget: 'Project tile shell' },
+      { code: c(2, 'CRD'), name: 'Tilted', blurb: '3D tilt toward cursor.', source: 'reactbits', component: 'TiltedCard', install: 'reactbits: get TiltedCard (ts-tailwind)', siteTarget: 'Project card hover', props: { imageSrc: '/portrait.svg', altText: 'Project', captionText: 'Realtime dashboard', containerHeight: '220px', rotateAmplitude: 12, scaleOnHover: 1.05 } },
+      { code: c(3, 'CRD'), name: 'Spotlight', blurb: 'Glow follows the cursor.', source: 'reactbits', component: 'SpotlightCard', install: 'reactbits: get SpotlightCard (ts-tailwind)', siteTarget: 'Project card', props: { spotlightColor: 'rgba(94,234,212,0.25)' }, label: 'Realtime dashboard' },
+      { code: c(4, 'CRD'), name: 'Magic Bento', blurb: 'Glow grid panel.', source: 'reactbits', component: 'MagicBento', install: 'reactbits: get MagicBento (ts-tailwind)', siteTarget: 'Projects grid', props: { glowColor: '94, 234, 212', enableSpotlight: true } },
+      { code: c(5, 'CRD'), name: 'Pixel', blurb: 'Pixel-reveal on hover.', source: 'reactbits', component: 'PixelCard', install: 'reactbits: get PixelCard (ts-tailwind)', siteTarget: 'Project card alt', props: { variant: 'default' }, label: 'Realtime dashboard' },
     ],
   },
   {

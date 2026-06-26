@@ -25,12 +25,32 @@ const Iridescence = lazy(() => import('@/components/reactbits/Iridescence'));
 const LiquidChrome = lazy(() => import('@/components/reactbits/LiquidChrome'));
 const Threads = lazy(() => import('@/components/reactbits/Threads'));
 
+// Cards — all eager: TiltedCard uses motion/react, SpotlightCard uses React only,
+// MagicBento uses gsap (gsap is exempt from lazy rule per project constraints),
+// PixelCard uses canvas-2d only.
+import TiltedCard from '@/components/reactbits/TiltedCard';
+import SpotlightCard from '@/components/reactbits/SpotlightCard';
+import MagicBento from '@/components/reactbits/MagicBento';
+import PixelCard from '@/components/reactbits/PixelCard';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+function ShadcnCardDemo() {
+  return (
+    <Card className="w-64">
+      <CardHeader><CardTitle>Realtime dashboard</CardTitle></CardHeader>
+      <CardContent>Live metrics over WebSockets with an offline cache.</CardContent>
+    </Card>
+  );
+}
+
 // Maps a Variant.component string to a real React component.
 // WebGL/heavy components are added via React.lazy and listed in lazyKeys.
 export const registry: Record<string, ComponentType<any>> = {
   SplitText, BlurText, DecryptedText, GlitchText, GradientText,
   ShinyText, ScrambledText, TextType, RotatingText,
   Aurora, Particles, Iridescence, LiquidChrome, Waves, Threads, DotGrid, Squares,
+  TiltedCard, SpotlightCard, MagicBento, PixelCard,
+  ShadcnCard: ShadcnCardDemo,
 };
 
 // Keys whose components are lazy-loaded (WebGL/3D/physics). LibDemo wraps these in Suspense.
