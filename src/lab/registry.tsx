@@ -34,6 +34,13 @@ import MagicBento from '@/components/reactbits/MagicBento';
 import PixelCard from '@/components/reactbits/PixelCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+// Buttons (Family A) — all eager: shadcn Button is plain Tailwind, the three
+// reactbits effects use only React/motion (no WebGL), so none need lazy loading.
+import StarBorder from '@/components/reactbits/StarBorder';
+import Magnet from '@/components/reactbits/Magnet';
+import GlareHover from '@/components/reactbits/GlareHover';
+import { Button } from '@/components/ui/button';
+
 function ShadcnCardDemo() {
   return (
     <Card className="w-64">
@@ -41,6 +48,10 @@ function ShadcnCardDemo() {
       <CardContent>Live metrics over WebSockets with an offline cache.</CardContent>
     </Card>
   );
+}
+
+function ShadcnButton({ variant = 'default', children }: { variant?: string; children?: React.ReactNode }) {
+  return <Button variant={variant as any}>{children ?? 'View work'}</Button>;
 }
 
 // Maps a Variant.component string to a real React component.
@@ -51,6 +62,7 @@ export const registry: Record<string, ComponentType<any>> = {
   Aurora, Particles, Iridescence, LiquidChrome, Waves, Threads, DotGrid, Squares,
   TiltedCard, SpotlightCard, MagicBento, PixelCard,
   ShadcnCard: ShadcnCardDemo,
+  ShadcnButton, StarBorder, Magnet, GlareHover,
 };
 
 // Keys whose components are lazy-loaded (WebGL/3D/physics). LibDemo wraps these in Suspense.

@@ -438,6 +438,21 @@ body.rm *, body.rm *::before, body.rm *::after {
 
 @property --p { syntax: '<percentage>'; inherits: false; initial-value: 65%; }
 
+/* StarBorder (reactbits BTN·04) — the component uses the Tailwind class names
+   animate-star-movement-{bottom,top} but those utilities aren't in this project's
+   theme. Define them here (lab-only, never shipped to production). The component
+   sets animation-duration inline from its `speed` prop, overriding the default. */
+@keyframes star-movement-bottom {
+  0%   { transform: translate(0%, 0%);    opacity: 1; }
+  100% { transform: translate(-100%, 0%); opacity: 0; }
+}
+@keyframes star-movement-top {
+  0%   { transform: translate(0%, 0%);   opacity: 1; }
+  100% { transform: translate(100%, 0%); opacity: 0; }
+}
+.animate-star-movement-bottom { animation: star-movement-bottom 6s linear infinite alternate; }
+.animate-star-movement-top    { animation: star-movement-top 6s linear infinite alternate; }
+
 @media (max-width: 820px) {
   .lab { grid-template-columns: 1fr; }
   .rail { position: static; height: auto; flex-direction: row; flex-wrap: wrap; }
