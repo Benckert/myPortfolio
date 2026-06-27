@@ -288,3 +288,47 @@
   pointer-events: none;
   opacity: 0.3;
 }
+
+/* Slide pager — right-edge prev/next, revealed on hover of the zone or keyboard
+   focus. Coexists with .back-to-top (bottom-right). */
+.slide-pager {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px 16px 44px; /* left pad widens the hover catch toward content */
+}
+.slide-pager__btn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transform: translateX(8px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, border-color 0.15s ease;
+}
+.slide-pager:hover .slide-pager__btn,
+.slide-pager:focus-within .slide-pager__btn {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+.slide-pager__btn:hover { border-color: var(--accent); }
+.slide-pager__btn[hidden] { display: none; }
+@media (max-width: 640px) {
+  .slide-pager { display: none; } /* native snap + swipe suffices on touch */
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide-pager__btn { transition: none; }
+}
