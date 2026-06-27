@@ -22,6 +22,27 @@
 }
 .btn:hover::after { left: 140%; }
 
+/* Spotlight — cursor-follow radial highlight over a control. */
+.spotlight { position: relative; display: inline-block; border-radius: 12px; }
+.spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  background: radial-gradient(
+    120px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(94, 234, 212, 0.35),
+    transparent 60%
+  );
+}
+.spotlight:hover::before { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .spotlight::before { display: none; }
+}
+
 /* Nav */
 .nav {
   position: sticky; top: 0; z-index: 40;
