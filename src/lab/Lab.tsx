@@ -1,15 +1,11 @@
 import { useEffect, useRef, useState, Suspense } from 'react';
 import { categories, type Variant, type Category } from './effects';
-import { initBehaviors, initCursor, type CursorMode } from './behaviors';
+import { initCursor, type CursorMode } from './behaviors';
 import { registry } from './registry';
 import './lab.css';
 
 type Bg = 'base' | 'elev' | 'spot';
 type Amb = 'off' | 'aurora' | 'mesh' | 'grid' | 'gradient';
-
-// data:{magnetic:'0.3'} -> {'data-magnetic':'0.3'} for spreading onto an element.
-const da = (d?: Record<string, string>) =>
-  Object.fromEntries(Object.entries(d ?? {}).map(([k, v]) => [`data-${k}`, v]));
 
 function LibDemo({ v }: { v: Variant }) {
   const C = registry[v.component!];
@@ -38,12 +34,11 @@ function Demo({ kind, v }: { kind: Category['kind']; v: Variant }) {
   const cls = v.cls ?? '';
   const has = (s: string) => cls.includes(s);
   const style = v.style as React.CSSProperties | undefined;
-  const data = da(v.data);
 
   switch (kind) {
     case 'button':
       return (
-        <button className={`btn ${cls}`} style={style} {...data}>
+        <button className={`btn ${cls}`} style={style}>
           {has('bt-shimmer') ? (
             <span>{v.label ?? 'View work'}</span>
           ) : (
@@ -56,7 +51,7 @@ function Demo({ kind, v }: { kind: Category['kind']; v: Variant }) {
       );
     case 'portrait':
       return (
-        <button className={`ph ${cls}`} {...data} aria-label="Portrait specimen">
+        <button className={`ph ${cls}`} aria-label="Portrait specimen">
           <span className="port">
             <span className="port__img" />
           </span>
@@ -73,7 +68,7 @@ function Demo({ kind, v }: { kind: Category['kind']; v: Variant }) {
       );
     case 'card':
       return (
-        <div className={`card ${cls}`} tabIndex={0} {...data}>
+        <div className={`card ${cls}`} tabIndex={0}>
           <div className="card__thumb" />
           <div className="card__body">
             <div className="card__title">Realtime dashboard</div>
@@ -91,12 +86,12 @@ function Demo({ kind, v }: { kind: Category['kind']; v: Variant }) {
       );
     case 'heading':
       return (
-        <div className={`htxt ${cls}`} data-text={v.label} {...data}>
+        <div className={`htxt ${cls}`} data-text={v.label}>
           {v.label}
         </div>
       );
     case 'bg':
-      return <div className={`bgtile ${cls}`} {...data} />;
+      return <div className={`bgtile ${cls}`} />;
     case 'loader':
       return (
         <div className={cls}>
@@ -124,13 +119,8 @@ export default function Lab() {
   const [amb, setAmb] = useState<Amb>('off');
   const [rm, setRm] = useState(false);
   const [cursor, setCursor] = useState<CursorMode | 'off'>('off');
+  const [source, setSource] = useState<'all' | 'reactbits' | 'shadcn' | 'bespoke'>('all');
   const [active, setActive] = useState(categories[0].id);
-
-  // Wire JS-driven specimens once the catalog has rendered.
-  useEffect(() => {
-    if (!stageRef.current) return;
-    return initBehaviors(stageRef.current);
-  }, []);
 
   // Reduced-motion preview toggles a body class (see lab.css).
   useEffect(() => {
@@ -176,6 +166,7 @@ export default function Lab() {
   };
 
   const copyCls = (cls?: string) => cls && navigator.clipboard?.writeText(`.${cls.split(' ').join('.')}`);
+  const copyInstall = (s?: string) => s && navigator.clipboard?.writeText(s);
 
   const total = categories.reduce((n, c) => n + c.variants.length, 0);
 
@@ -206,6 +197,16 @@ export default function Lab() {
 
         <div className="ctlset">
           <div className="rail__group-label">Controls</div>
+          <div className="ctlrow">
+            <span>Source</span>
+            <div className="seg">
+              {(['all', 'reactbits', 'shadcn', 'bespoke'] as const).map((s) => (
+                <button key={s} className={source === s ? 'on' : ''} onClick={() => setSource(s)}>
+                  {s === 'all' ? 'All' : s}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="ctlrow">
             <span>Canvas</span>
             <div className="seg">
@@ -262,38 +263,47 @@ export default function Lab() {
           </div>
         </header>
 
-        {categories.map((cat) => (
-          <section key={cat.id} id={cat.id} className="cat">
-            <div className="cat__head">
-              <span className="cat__code">{cat.code}</span>
-              <h2>{cat.title}</h2>
-            </div>
-            <p className="cat__desc">{cat.desc}</p>
-            <div className="grid">
-              {cat.variants.map((v) => {
-                const b = badge(v);
-                return (
-                  <div key={v.code} className={`spec ${v.current ? 'is-current' : ''}`}>
-                    {b && <span className="spec__badge">{b}</span>}
-                    <div className="spec__stage">
-                      <Demo kind={cat.kind} v={v} />
+        {categories.map((cat) => {
+          const filtered = source === 'all' ? cat.variants : cat.variants.filter((v) => v.source === source);
+          if (filtered.length === 0) return null;
+          return (
+            <section key={cat.id} id={cat.id} className="cat">
+              <div className="cat__head">
+                <span className="cat__code">{cat.code}</span>
+                <h2>{cat.title}</h2>
+              </div>
+              <p className="cat__desc">{cat.desc}</p>
+              <div className="grid">
+                {filtered.map((v) => {
+                  const b = badge(v);
+                  return (
+                    <div key={v.code} className={`spec ${v.current ? 'is-current' : ''}`}>
+                      {b && <span className="spec__badge">{b}</span>}
+                      <div className="spec__stage">
+                        <Demo kind={cat.kind} v={v} />
+                      </div>
+                      <div className="spec__meta">
+                        <span className="spec__code">{v.code}{v.current ? ' · current' : ''}</span>
+                        <span className="spec__name">{v.name}</span>
+                        <span className="spec__blurb">{v.blurb}</span>
+                        {v.cls && (
+                          <span className="spec__cls" title="Copy selector" onClick={() => copyCls(v.cls)}>
+                            .{v.cls.split(' ').join('.')}
+                          </span>
+                        )}
+                        {v.install && (
+                          <span className="spec__cls" title="Copy install command" onClick={() => copyInstall(v.install)}>
+                            ⧉ {v.component} · {v.siteTarget}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="spec__meta">
-                      <span className="spec__code">{v.code}{v.current ? ' · current' : ''}</span>
-                      <span className="spec__name">{v.name}</span>
-                      <span className="spec__blurb">{v.blurb}</span>
-                      {v.cls && (
-                        <span className="spec__cls" title="Copy selector" onClick={() => copyCls(v.cls)}>
-                          .{v.cls.split(' ').join('.')}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        ))}
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })}
 
         <footer style={{ padding: '32px 40px', color: 'var(--muted)', fontFamily: 'var(--font-mono)', fontSize: 12 }}>
           dev-only · not shipped · explore/ui-effects-lab

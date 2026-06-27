@@ -1,6 +1,5 @@
 // Catalog of interaction specimens. Pure data — Lab.tsx renders each `kind`.
-// `cls` is the modifier applied to the demo base; `style` sets per-variant vars;
-// `data` becomes data-* attributes wired up by behaviors.ts (JS-driven effects).
+// `cls` is the modifier applied to the demo base; `style` sets per-variant vars.
 
 export type Kind =
   | 'button' | 'portrait' | 'chip' | 'card' | 'link' | 'heading' | 'bg' | 'loader' | 'glass';
@@ -18,7 +17,6 @@ export interface Variant {
   siteTarget?: string;            // where this would live on the real site
   cls?: string;
   style?: Record<string, string>;
-  data?: Record<string, string>; // bespoke: data-* hooks for behaviors.ts
   label?: string;          // text content for text-bearing demos
   current?: boolean;       // marks what's live on the site today
   js?: boolean;            // needs JS (shows a JS badge)

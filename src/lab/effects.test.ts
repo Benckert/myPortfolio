@@ -25,9 +25,16 @@ describe('lab catalog integrity', () => {
     }
   });
 
-  it('bespoke specimens carry a cls or data hook', () => {
+  it('bespoke specimens carry a cls', () => {
     for (const v of all.filter((v) => v.source === 'bespoke')) {
-      expect(Boolean(v.cls || v.data), `${v.code} bespoke needs cls/data`).toBe(true);
+      expect(Boolean(v.cls), `${v.code} bespoke needs cls`).toBe(true);
+    }
+  });
+
+  it('C (chips) and E (links) remain bespoke', () => {
+    for (const id of ['chips', 'links']) {
+      const cat = categories.find((c) => c.id === id)!;
+      expect(cat.variants.every((v) => v.source === 'bespoke'), id).toBe(true);
     }
   });
 });
