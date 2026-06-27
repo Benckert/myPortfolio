@@ -48,7 +48,13 @@ Animations use Framer Motion with shared variants in `src/lib/motion.ts` (`fadeU
 
 ### Dev-only Interaction Lab
 
-`src/lab/` (`Lab.tsx`, `effects.ts`, `behaviors.ts`) is a data-driven specimen bench for tuning hover/animation effects, served at `/lab.html` during `npm run dev`. It is **not** part of the production build (`vite build` only bundles `index.html`) and lives only on the `explore/ui-effects-lab` branch.
+`src/lab/` is a data-driven specimen bench for choosing hover/animation effects, served at `/lab.html` during `npm run dev`. It is **not** part of the production build (`vite build` only bundles `index.html`) and lives on the `explore/ui-lab-v2` branch.
+
+- **`effects.ts`** is the pure-data catalog: a typed `categories` array of families (A–I) of `Variant` specimens. Each variant declares its `source` (`'reactbits' | 'shadcn' | 'bespoke'`), and for library specimens a `component` (registry key), `install` command, and `siteTarget`. No JSX lives here.
+- **`registry.tsx`** maps each `component` string to a real React component and exports `lazyKeys` — the WebGL (ogl) components loaded via `React.lazy`. **three.js is excluded project-wide** (`@react-three/fiber`'s global JSX augmentation collapses React 19 intrinsics to `never` under `tsc -b`, even behind `lazy`); use `ogl` for WebGL.
+- **`Lab.tsx`** is the surface: a sticky rail (family index + view controls), a sticky source-filter toolbar, and a canvas of "vitrine" specimen cards with source pills. `behaviors.ts` now holds only the cursor-follower modes.
+- Library specimens are **copied into the repo**: reactbits sources in `src/components/reactbits/` (fetched via the reactbits MCP, `ts-tailwind` variant), shadcn primitives in `src/components/ui/`. Families A/B/D/F/G/H/I are library-backed; **C (chips) and E (links) stay bespoke** CSS in `lab.css`.
+- Note: the production `globals.css` carries some extra Tailwind utility classes scanned from the dev-only lab/reactbits sources (dev and prod share one Tailwind build) — an accepted minor overhead since the lab JS never ships.
 
 ## Testing conventions
 

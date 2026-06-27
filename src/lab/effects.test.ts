@@ -1,0 +1,40 @@
+import { describe, it, expect } from 'vitest';
+import { categories } from './effects';
+import { registry } from './registry';
+
+const all = categories.flatMap((c) => c.variants);
+
+describe('lab catalog integrity', () => {
+  it('every specimen code is unique', () => {
+    const codes = all.map((v) => v.code);
+    expect(new Set(codes).size).toBe(codes.length);
+  });
+
+  it('every variant declares a valid source', () => {
+    for (const v of all) {
+      expect(['bespoke', 'reactbits', 'shadcn'], v.code).toContain(v.source);
+    }
+  });
+
+  it('library specimens carry a resolvable component + install + siteTarget', () => {
+    for (const v of all.filter((v) => v.source !== 'bespoke')) {
+      expect(v.component, `${v.code} needs a component name`).toBeTruthy();
+      expect(registry[v.component!], `${v.code} → ${v.component} missing from registry`).toBeTruthy();
+      expect(v.install, `${v.code} needs an install command`).toBeTruthy();
+      expect(v.siteTarget, `${v.code} needs a siteTarget`).toBeTruthy();
+    }
+  });
+
+  it('bespoke specimens carry a cls', () => {
+    for (const v of all.filter((v) => v.source === 'bespoke')) {
+      expect(Boolean(v.cls), `${v.code} bespoke needs cls`).toBe(true);
+    }
+  });
+
+  it('C (chips) and E (links) remain bespoke', () => {
+    for (const id of ['chips', 'links']) {
+      const cat = categories.find((c) => c.id === id)!;
+      expect(cat.variants.every((v) => v.source === 'bespoke'), id).toBe(true);
+    }
+  });
+});
