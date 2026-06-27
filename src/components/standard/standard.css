@@ -279,3 +279,12 @@
   .portrait-btn:hover .about__portrait,
   .portrait-btn:focus-visible .about__portrait { transform: none; }
 }
+
+/* Faint fixed WebGL background — sits behind all transparent snap-sections. */
+.liquid-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.3;
+}
