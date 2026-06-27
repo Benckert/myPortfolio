@@ -136,7 +136,7 @@ export const categories: Category[] = [
       { code: c(1, 'LDR'), name: 'Spinner ring', blurb: 'Classic arc spinner.', source: 'bespoke', cls: 'ld-ring', live: true },
       { code: c(2, 'LDR'), name: 'Bouncing dots', blurb: 'Three-dot wave.', source: 'bespoke', cls: 'ld-dots', live: true },
       { code: c(3, 'LDR'), name: 'Indeterminate bar', blurb: 'Sliding progress bar.', source: 'bespoke', cls: 'ld-bar', live: true },
-      { code: c(4, 'LDR'), name: 'Skeleton', blurb: 'Shimmering content placeholder.', source: 'bespoke', cls: 'ld-skeleton', live: true },
+      { code: c(4, 'LDR'), name: 'shadcn Skeleton', blurb: 'Pulsing content placeholder.', source: 'shadcn', component: 'ShadcnSkeleton', install: 'npx shadcn@latest add skeleton', siteTarget: 'Project/skeleton loading state', live: true },
       { code: c(5, 'LDR'), name: 'Progress ring', blurb: 'Conic fill dial.', source: 'bespoke', cls: 'ld-prog', live: true },
     ],
   },

@@ -45,6 +45,19 @@ import Magnet from '@/components/reactbits/Magnet';
 import GlareHover from '@/components/reactbits/GlareHover';
 import { Button } from '@/components/ui/button';
 
+// Loaders (Family H) — shadcn Skeleton is pure Tailwind (animate-pulse), eager.
+import { Skeleton } from '@/components/ui/skeleton';
+
+function ShadcnSkeleton() {
+  return (
+    <div className="flex flex-col gap-2 w-56">
+      <Skeleton className="h-4 w-3/4" />
+      <Skeleton className="h-4 w-1/2" />
+      <Skeleton className="h-24 w-full" />
+    </div>
+  );
+}
+
 function ShadcnCardDemo() {
   return (
     <Card className="w-64">
@@ -68,6 +81,7 @@ export const registry: Record<string, ComponentType<any>> = {
   ShadcnCard: ShadcnCardDemo,
   ShadcnButton, StarBorder, Magnet, GlareHover,
   ProfileCard,
+  ShadcnSkeleton,
 };
 
 // Keys whose components are lazy-loaded (WebGL/3D/physics). LibDemo wraps these in Suspense.
