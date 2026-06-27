@@ -37,7 +37,7 @@ const c = (n: number, p: string) => `${p}·${String(n).padStart(2, '0')}`;
 export const categories: Category[] = [
   {
     id: 'buttons', code: 'A', title: 'CTA buttons', kind: 'button',
-    desc: 'Primary call-to-action treatments. Hover to feel each; the glares can be fired in sync from the rail.',
+    desc: 'Primary call-to-action treatments — shadcn Button variants plus reactbits hover/border effects. Hover to feel each.',
     variants: [
       { code: c(1, 'BTN'), name: 'shadcn default', blurb: 'Base primary button.', source: 'shadcn', component: 'ShadcnButton', install: 'npx shadcn@latest add button', siteTarget: 'Primary CTA', props: { variant: 'default' }, label: 'Get in touch', current: true },
       { code: c(2, 'BTN'), name: 'shadcn secondary', blurb: 'Muted secondary.', source: 'shadcn', component: 'ShadcnButton', install: 'npx shadcn@latest add button', siteTarget: 'Secondary CTA', props: { variant: 'secondary' }, label: 'View work' },
