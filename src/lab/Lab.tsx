@@ -22,6 +22,18 @@ function LibDemo({ v }: { v: Variant }) {
 }
 
 function Demo({ kind, v }: { kind: Category['kind']; v: Variant }) {
+  if (kind === 'glass') {
+    return (
+      <div className="glass-scene">
+        <span className="glass-scene__blob a" />
+        <span className="glass-scene__blob b" />
+        <span className="glass-scene__txt">Aa</span>
+        {v.source === 'bespoke'
+          ? <div className={`glass ${v.cls ?? ''}`}>{v.name}<span>backdrop-filter</span></div>
+          : <LibDemo v={v} />}
+      </div>
+    );
+  }
   if (v.source !== 'bespoke') return <LibDemo v={v} />;
   const cls = v.cls ?? '';
   const has = (s: string) => cls.includes(s);
@@ -95,18 +107,6 @@ function Demo({ kind, v }: { kind: Category['kind']; v: Variant }) {
               <i />
             </>
           )}
-        </div>
-      );
-    case 'glass':
-      return (
-        <div className="glass-scene">
-          <span className="glass-scene__blob a" />
-          <span className="glass-scene__blob b" />
-          <span className="glass-scene__txt">Aa</span>
-          <div className={`glass ${cls}`}>
-            {v.name}
-            <span>backdrop-filter</span>
-          </div>
         </div>
       );
   }

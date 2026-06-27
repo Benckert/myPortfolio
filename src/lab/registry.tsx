@@ -48,6 +48,10 @@ import { Button } from '@/components/ui/button';
 // Loaders (Family H) — shadcn Skeleton is pure Tailwind (animate-pulse), eager.
 import { Skeleton } from '@/components/ui/skeleton';
 
+// Glass (Family I) — both react-only (SVG-distortion / CSS glassmorphism, no WebGL), eager.
+import GlassSurface from '@/components/reactbits/GlassSurface';
+import GlassIcons from '@/components/reactbits/GlassIcons';
+
 function ShadcnSkeleton() {
   return (
     <div className="flex flex-col gap-2 w-56">
@@ -82,6 +86,7 @@ export const registry: Record<string, ComponentType<any>> = {
   ShadcnButton, StarBorder, Magnet, GlareHover,
   ProfileCard,
   ShadcnSkeleton,
+  GlassSurface, GlassIcons,
 };
 
 // Keys whose components are lazy-loaded (WebGL/3D/physics). LibDemo wraps these in Suspense.
