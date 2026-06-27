@@ -7,11 +7,17 @@ import './lab.css';
 type Bg = 'base' | 'elev' | 'spot';
 type Amb = 'off' | 'aurora' | 'mesh' | 'grid' | 'gradient';
 
+const SRC_COLOR: Record<Variant['source'], string> = {
+  reactbits: 'var(--src-reactbits)',
+  shadcn: 'var(--src-shadcn)',
+  bespoke: 'var(--src-bespoke)',
+};
+
 function LibDemo({ v }: { v: Variant }) {
   const C = registry[v.component!];
   if (!C) return <span className="spec__missing">missing: {v.component}</span>;
   return (
-    <Suspense fallback={<span className="spec__loading">loading…</span>}>
+    <Suspense fallback={<span className="spec__shimmer" aria-hidden="true" />}>
       <C {...(v.props ?? {})}>{v.label}</C>
     </Suspense>
   );
@@ -31,32 +37,12 @@ function Demo({ kind, v }: { kind: Category['kind']; v: Variant }) {
     );
   }
   if (v.source !== 'bespoke') return <LibDemo v={v} />;
+
+  // Remaining bespoke families: chips (C), links (E), loaders (H).
   const cls = v.cls ?? '';
   const has = (s: string) => cls.includes(s);
-  const style = v.style as React.CSSProperties | undefined;
 
   switch (kind) {
-    case 'button':
-      return (
-        <button className={`btn ${cls}`} style={style}>
-          {has('bt-shimmer') ? (
-            <span>{v.label ?? 'View work'}</span>
-          ) : (
-            <>
-              {v.label ?? 'View work'}
-              {has('bt-arrow') && <span className="arr">→</span>}
-            </>
-          )}
-        </button>
-      );
-    case 'portrait':
-      return (
-        <button className={`ph ${cls}`} aria-label="Portrait specimen">
-          <span className="port">
-            <span className="port__img" />
-          </span>
-        </button>
-      );
     case 'chip':
       return (
         <span className={`cw ${cls}`}>
@@ -66,17 +52,6 @@ function Demo({ kind, v }: { kind: Category['kind']; v: Variant }) {
           </span>
         </span>
       );
-    case 'card':
-      return (
-        <div className={`card ${cls}`} tabIndex={0}>
-          <div className="card__thumb" />
-          <div className="card__body">
-            <div className="card__title">Realtime dashboard</div>
-            <p className="card__sum">Live metrics streamed over WebSockets with an offline cache.</p>
-          </div>
-          {has('cd-reveal') && <div className="card__cta">View case study →</div>}
-        </div>
-      );
     case 'link':
       return (
         <a className={`lnk ${cls}`} href="#demo" onClick={(e) => e.preventDefault()}>
@@ -84,18 +59,10 @@ function Demo({ kind, v }: { kind: Category['kind']; v: Variant }) {
           {has('ln-arrow') && <span className="arr"> →</span>}
         </a>
       );
-    case 'heading':
-      return (
-        <div className={`htxt ${cls}`} data-text={v.label}>
-          {v.label}
-        </div>
-      );
-    case 'bg':
-      return <div className={`bgtile ${cls}`} />;
     case 'loader':
       return (
         <div className={cls}>
-          {(has('ld-dots') || has('ld-skeleton')) && (
+          {has('ld-dots') && (
             <>
               <i />
               <i />
@@ -133,7 +100,7 @@ export default function Lab() {
     return initCursor(cursor);
   }, [cursor]);
 
-  // Highlight the active category in the rail while scrolling.
+  // Highlight the active family in the rail while scrolling.
   useEffect(() => {
     const obs = new IntersectionObserver(
       (entries) => {
@@ -148,16 +115,6 @@ export default function Lab() {
     return () => obs.disconnect();
   }, []);
 
-  const replayGlares = () => {
-    const btns = stageRef.current?.querySelectorAll<HTMLElement>('.btn.glare');
-    btns?.forEach((b) => {
-      b.classList.remove('sweep');
-      void b.offsetWidth;
-      b.classList.add('sweep');
-    });
-    setTimeout(() => btns?.forEach((b) => b.classList.remove('sweep')), 1800);
-  };
-
   const onStageMove = (e: React.MouseEvent) => {
     if (bg !== 'spot') return;
     const r = stageRef.current!.getBoundingClientRect();
@@ -169,6 +126,13 @@ export default function Lab() {
   const copyInstall = (s?: string) => s && navigator.clipboard?.writeText(s);
 
   const total = categories.reduce((n, c) => n + c.variants.length, 0);
+  const libCount = categories.reduce((n, c) => n + c.variants.filter((v) => v.source !== 'bespoke').length, 0);
+
+  const sections = categories.map((cat) => ({
+    cat,
+    items: source === 'all' ? cat.variants : cat.variants.filter((v) => v.source === source),
+  }));
+  const shown = sections.reduce((n, s) => n + s.items.length, 0);
 
   return (
     <div className="lab">
@@ -177,6 +141,7 @@ export default function Lab() {
         <div className="rail__brand">
           <b>Interaction<span>·</span>Lab</b>
           <small>{total} specimens · {categories.length} families</small>
+          <small className="rail__stat">{libCount}/{total} now from libraries · {total - libCount} bespoke</small>
         </div>
 
         <nav>
@@ -188,7 +153,8 @@ export default function Lab() {
                 className={`rail__link ${active === cat.id ? 'active' : ''}`}
                 onClick={() => document.getElementById(cat.id)?.scrollIntoView({ behavior: 'smooth' })}
               >
-                <span>{cat.code} · {cat.title}</span>
+                <span className="rail__mono">{cat.code}</span>
+                <span className="rail__title">{cat.title}</span>
                 <span className="n">{cat.variants.length}</span>
               </button>
             ))}
@@ -196,17 +162,7 @@ export default function Lab() {
         </nav>
 
         <div className="ctlset">
-          <div className="rail__group-label">Controls</div>
-          <div className="ctlrow">
-            <span>Source</span>
-            <div className="seg">
-              {(['all', 'reactbits', 'shadcn', 'bespoke'] as const).map((s) => (
-                <button key={s} className={source === s ? 'on' : ''} onClick={() => setSource(s)}>
-                  {s === 'all' ? 'All' : s}
-                </button>
-              ))}
-            </div>
-          </div>
+          <div className="rail__group-label">View</div>
           <div className="ctlrow">
             <span>Canvas</span>
             <div className="seg">
@@ -242,71 +198,97 @@ export default function Lab() {
               <button className={rm ? 'on' : ''} onClick={() => setRm(true)}>On</button>
             </div>
           </div>
-          <button className="btn-ctl" onClick={replayGlares}>▶ Replay all glares</button>
         </div>
       </aside>
 
       <div ref={stageRef} className={`stage bgv-${bg}`} onMouseMove={onStageMove}>
+        <div className="toolbar">
+          <div className="toolbar__group">
+            <span className="toolbar__label">Source</span>
+            <div className="seg">
+              {(['all', 'reactbits', 'shadcn', 'bespoke'] as const).map((s) => (
+                <button key={s} className={source === s ? 'on' : ''} onClick={() => setSource(s)}>
+                  {s === 'all' ? 'All' : s}
+                </button>
+              ))}
+            </div>
+          </div>
+          <span className="toolbar__count">showing <b>{shown}</b> of {total}</span>
+        </div>
+
         <header className="hero-lab">
           <p className="hero-lab__eyebrow">Portfolio · micro-interaction bench</p>
           <h1>A bench for <em>motion</em>, hover &amp; ambience.</h1>
           <p>
-            Every specimen below is the real component with one effect applied. Hover to feel it, fire the
-            glares in sync, switch the canvas, or preview the reduced-motion fallback. Pick the ones you
-            like by code and I'll wire them into the site.
+            Every specimen below is the real component with one effect applied. Hover to feel it, switch
+            the canvas, filter by source, or preview the reduced-motion fallback. Pick the ones you like
+            by code and I'll wire them into the site.
           </p>
           <div className="hero-lab__legend">
             <span><code>CODE·NN</code> reference id</span>
             <span><code>JS</code> needs a little script</span>
             <span><code>LIVE</code> animates at rest</span>
-            <span>teal border = on the site today</span>
+            <span>teal frame = on the site today</span>
           </div>
         </header>
 
-        {categories.map((cat) => {
-          const filtered = source === 'all' ? cat.variants : cat.variants.filter((v) => v.source === source);
-          if (filtered.length === 0) return null;
-          return (
-            <section key={cat.id} id={cat.id} className="cat">
-              <div className="cat__head">
-                <span className="cat__code">{cat.code}</span>
-                <h2>{cat.title}</h2>
-              </div>
-              <p className="cat__desc">{cat.desc}</p>
-              <div className="grid">
-                {filtered.map((v) => {
-                  const b = badge(v);
-                  return (
-                    <div key={v.code} className={`spec ${v.current ? 'is-current' : ''}`}>
-                      {b && <span className="spec__badge">{b}</span>}
-                      <div className="spec__stage">
-                        <Demo kind={cat.kind} v={v} />
+        {shown === 0 ? (
+          <div className="lab-empty">
+            No specimens from “{source}”. Switch the source filter back to <b>All</b> to see all {total}.
+          </div>
+        ) : (
+          sections.map(({ cat, items }) => {
+            if (items.length === 0) return null;
+            return (
+              <section key={cat.id} id={cat.id} className="cat">
+                <div className="cat__head">
+                  <span className="cat__code">{cat.code}</span>
+                  <h2>{cat.title}</h2>
+                  <span className="cat__rule" aria-hidden="true" />
+                  <span className="cat__count">{items.length} {items.length === 1 ? 'specimen' : 'specimens'}</span>
+                  <span className="cat__ghost" aria-hidden="true">{cat.code}</span>
+                </div>
+                <p className="cat__desc">{cat.desc}</p>
+                <div className="lab-grid">
+                  {items.map((v) => {
+                    const b = badge(v);
+                    return (
+                      <div key={v.code} className={`spec ${v.current ? 'is-current' : ''}`}>
+                        {b && <span className="spec__badge">{b}</span>}
+                        <div className="spec__stage" data-demo={v.source !== 'bespoke' ? v.component : undefined}>
+                          <Demo kind={cat.kind} v={v} />
+                        </div>
+                        <div className="spec__meta">
+                          <div className="spec__meta-top">
+                            <span className="spec__code">{v.code}{v.current ? ' · current' : ''}</span>
+                            <span className="spec__src" style={{ '--src-c': SRC_COLOR[v.source] } as React.CSSProperties}>
+                              {v.source}
+                            </span>
+                          </div>
+                          <span className="spec__name">{v.name}</span>
+                          <span className="spec__blurb">{v.blurb}</span>
+                          {v.cls && (
+                            <span className="spec__cls" title="Copy selector" onClick={() => copyCls(v.cls)}>
+                              .{v.cls.split(' ').join('.')}
+                            </span>
+                          )}
+                          {v.install && (
+                            <span className="spec__cls" title="Copy install command" onClick={() => copyInstall(v.install)}>
+                              ⧉ {v.component} · {v.siteTarget}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <div className="spec__meta">
-                        <span className="spec__code">{v.code}{v.current ? ' · current' : ''}</span>
-                        <span className="spec__name">{v.name}</span>
-                        <span className="spec__blurb">{v.blurb}</span>
-                        {v.cls && (
-                          <span className="spec__cls" title="Copy selector" onClick={() => copyCls(v.cls)}>
-                            .{v.cls.split(' ').join('.')}
-                          </span>
-                        )}
-                        {v.install && (
-                          <span className="spec__cls" title="Copy install command" onClick={() => copyInstall(v.install)}>
-                            ⧉ {v.component} · {v.siteTarget}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          );
-        })}
+                    );
+                  })}
+                </div>
+              </section>
+            );
+          })
+        )}
 
-        <footer style={{ padding: '32px 40px', color: 'var(--muted)', fontFamily: 'var(--font-mono)', fontSize: 12 }}>
-          dev-only · not shipped · explore/ui-effects-lab
+        <footer className="lab-footer">
+          dev-only · not shipped · explore/ui-lab-v2
         </footer>
       </div>
     </div>
