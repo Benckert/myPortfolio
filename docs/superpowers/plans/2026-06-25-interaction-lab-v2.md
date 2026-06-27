@@ -470,33 +470,58 @@ git commit -m "feat(lab): convert Loaders (H) — shadcn Skeleton + kept bespoke
 
 ---
 
-### Task 9: Family I (Glass) → reactbits GlassSurface / GlassIcons / FluidGlass
+### Task 9: Family I (Glass) → reactbits GlassSurface / GlassIcons (FluidGlass EXCLUDED)
 
-**Components:** reactbits GlassSurface, GlassIcons, FluidGlass (FluidGlass may be heavy → lazy if it imports three/ogl/drei).
+**Components:** reactbits **GlassSurface** + **GlassIcons** — both verified pure-React (`react`-only imports, no CSS companion) → **eager**, no `lazyKeys` change.
+
+> **FluidGlass is EXCLUDED — do not fetch, install, or register it.** Verified via MCP: it imports `three`, `@react-three/fiber`, `@react-three/drei`, and `maath`. Per the project-wide three.js ban (Global Constraints / Task 4), `@react-three/fiber`'s global JSX augmentation collapses React 19 intrinsic elements to `never` across all of `src/` under `tsc -b` — `React.lazy` does NOT contain it. FluidGlass also needs `.glb` 3D models + demo `.webp` assets this project doesn't ship. There is no ogl glass substitute (unlike Task 4's LiquidChrome/Iridescence), so the third slot is filled by **keeping the live bespoke `gl-nav`** as the `current` reference — mirroring how Family H kept bespoke loaders alongside the one shadcn conversion. Net: 10 bespoke → 2 reactbits + 1 bespoke (catalog 65 → 58).
 
 **Files:**
-- Create: `src/components/reactbits/{GlassSurface,GlassIcons,FluidGlass}.tsx`
-- Modify: `src/lab/registry.tsx`, `src/lab/effects.ts`, `src/lab/lab.css` (give the glass specimens a busy backdrop to blur)
+- Create: `src/components/reactbits/{GlassSurface,GlassIcons}.tsx`
+- Modify: `src/lab/registry.tsx`, `src/lab/effects.ts`, `src/lab/Lab.tsx` (glass-scene wiring — see Step 3). `src/lab/lab.css` already has the `.glass-scene` backdrop (line ~373); no CSS change expected.
 
-- [ ] **Step 1: Fetch sources.** Scan FluidGlass imports: if it imports `three`/`@react-three/*`/`ogl`, `npm install` them, register FluidGlass `lazy`, add `'FluidGlass'` to `lazyKeys`. GlassSurface/GlassIcons → eager.
-- [ ] **Step 2: Register** GlassSurface, GlassIcons (eager) and FluidGlass (lazy if heavy).
-- [ ] **Step 3: Provide a backdrop for glass specimens** — in `lab.css`, give the `glass` section's specimen stage a static gradient/pattern + a glyph behind the panel (reuse the old `.glass-scene` styling) so the blur reads. CSS-only.
-- [ ] **Step 4: Rewrite family I variants** in `effects.ts`:
+- [ ] **Step 1: Fetch sources** (ts-tailwind) → `src/components/reactbits/GlassSurface.tsx`, `GlassIcons.tsx`. Confirm each has a `export default`. Do NOT touch `lazyKeys` (both eager).
+- [ ] **Step 2: Register** GlassSurface, GlassIcons (eager imports) in `registry.tsx`.
+- [ ] **Step 3 (CRITICAL): wire library glass over the busy backdrop in `Lab.tsx`.** Today `Demo()` early-returns `<LibDemo>` for every non-bespoke specimen, so a reactbits glass panel would render on the plain `.spec__stage` with nothing behind it — and GlassSurface's whole effect is distorting its backdrop, so it'd look empty. Restructure `Demo()` so **glass is handled before the non-bespoke early return**, floating BOTH bespoke and library glass inside the existing `.glass-scene` (blobs + "Aa" glyph):
+
+```tsx
+function Demo({ kind, v }: { kind: Category['kind']; v: Variant }) {
+  if (kind === 'glass') {
+    return (
+      <div className="glass-scene">
+        <span className="glass-scene__blob a" />
+        <span className="glass-scene__blob b" />
+        <span className="glass-scene__txt">Aa</span>
+        {v.source === 'bespoke'
+          ? <div className={`glass ${v.cls ?? ''}`}>{v.name}<span>backdrop-filter</span></div>
+          : <LibDemo v={v} />}
+      </div>
+    );
+  }
+  if (v.source !== 'bespoke') return <LibDemo v={v} />;
+  // …existing switch; REMOVE the now-dead `case 'glass':` arm…
+}
+```
+
+- [ ] **Step 4: Rewrite family I variants** in `effects.ts` (note `icon: '★'` is a string — `effects.ts` is pure data and can't build JSX; GlassIcons types `icon` as `ReactElement` but props is `unknown`-typed so it compiles, and React renders the glyph as a text node at runtime. Use `indigo`/`green` colors — both map to GlassIcons' gradient table; `teal` would render a flat color):
 
 ```ts
 variants: [
-  { code: c(1, 'GLS'), name: 'Glass surface', blurb: 'Frosted distortion panel.', source: 'reactbits', component: 'GlassSurface', install: 'reactbits: get GlassSurface (ts-tailwind)', siteTarget: 'Nav bar / lightbox', current: true, props: { width: 260, height: 120, borderRadius: 16, blur: 11 }, label: 'backdrop-filter' },
-  { code: c(2, 'GLS'), name: 'Glass icons', blurb: 'Glassy icon tiles.', source: 'reactbits', component: 'GlassIcons', install: 'reactbits: get GlassIcons (ts-tailwind)', siteTarget: 'Socials row', props: { items: [{ icon: '★', color: 'teal', label: 'GitHub' }, { icon: '✉', color: 'indigo', label: 'Email' }] } },
-  { code: c(3, 'GLS'), name: 'Fluid glass', blurb: 'Refractive 3D glass.', source: 'reactbits', component: 'FluidGlass', install: 'reactbits: get FluidGlass (ts-tailwind) + WebGL deps', siteTarget: 'Hero feature panel', props: { mode: 'lens' }, live: true },
+  { code: c(1, 'GLS'), name: 'Glass surface', blurb: 'Frosted SVG-distortion panel.', source: 'reactbits', component: 'GlassSurface', install: 'reactbits: get GlassSurface (ts-tailwind)', siteTarget: 'Nav bar / lightbox', props: { width: 220, height: 96, borderRadius: 16, blur: 11, opacity: 0.9 }, label: 'backdrop-filter' },
+  { code: c(2, 'GLS'), name: 'Glass icons', blurb: 'Glassy 3D icon tiles.', source: 'reactbits', component: 'GlassIcons', install: 'reactbits: get GlassIcons (ts-tailwind)', siteTarget: 'Socials row', props: { items: [{ icon: '★', color: 'indigo', label: 'GitHub' }, { icon: '✉', color: 'green', label: 'Email' }] } },
+  { code: c(3, 'GLS'), name: 'Nav glass', blurb: 'rgba dark + blur(10px) — the live nav.', source: 'bespoke', cls: 'gl-nav', current: true },
 ],
 ```
 
-- [ ] **Step 5: Integrity + build + suite + visual** — checks then `lab.html#glass` snapshot. Confirm FluidGlass lazy-loads without errors. Fix prop mismatches.
+- [ ] **Step 5: Integrity + build + suite + visual** — `npx vitest run src/lab/effects.test.ts`, `npm run build`, `npm test`, then ORCHESTRATOR Chrome gate on `lab.html#glass`:
+  - GlassSurface (GLS·01) must visibly read as a frosted/refractive panel over the blobs. If Chromium silently no-ops `backdrop-filter: url(#filter)` distortion, bump `backgroundOpacity` to ~0.08–0.12 in effects.ts so the panel still reads as glass, and record it.
+  - GlassIcons (GLS·02) renders 2 glassy tiles; watch sizing — its `gap-[5em]`/`py-[3em]` defaults are large and may overflow the 124px scene. Constrain via a `className` prop or defer fine sizing to Task 11 (self-contained overflow, same defer rule as MagicBento).
+  - gl-nav (GLS·03) still shows its dark blurred panel + teal `is-current` ring.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/components/reactbits src/lab/registry.tsx src/lab/effects.ts src/lab/lab.css
-git commit -m "feat(lab): convert Glass (I) to reactbits GlassSurface/GlassIcons/FluidGlass"
+git add src/components/reactbits src/lab/registry.tsx src/lab/effects.ts src/lab/Lab.tsx
+git commit -m "feat(lab): convert Glass (I) to reactbits GlassSurface/GlassIcons (FluidGlass excluded — three.js)"
 ```
 
 ---
@@ -510,7 +535,7 @@ Surface the new wiring metadata in the UI and prune superseded JS behaviors. (Vi
 - Modify: `src/lab/behaviors.ts` (remove handlers no longer referenced by any `source: 'bespoke'` specimen)
 - Modify: `src/lab/effects.test.ts` (assert C + E stay bespoke)
 
-- [ ] **Step 1: Add source filter + install-copy to `Lab.tsx`** — add `source` filter state + a rail segmented control mirroring the existing `bg`/`amb` controls; filter variants by selected source. In each `.spec__meta`, when `v.source !== 'bespoke'`, render component + siteTarget + a copy button:
+- [ ] **Step 1: Add source filter + install-copy to `Lab.tsx`** — add `source` filter state (`'all' | 'reactbits' | 'shadcn' | 'bespoke'`, default `'all'`) + a rail segmented control mirroring the existing `bg`/`amb` controls. Compute `filtered = source==='all' ? cat.variants : cat.variants.filter(v => v.source === source)` per family; **skip rendering a family `<section>` entirely when its `filtered` list is empty** (no empty headers — the polished empty-state styling is Task 11). Leave the rail family counts as full totals for now (Task 11 refines). In each `.spec__meta`, when `v.source !== 'bespoke'`, render component + siteTarget + a copy button (this is functional wiring only — Task 11 restyles it):
 
 ```tsx
 const copyInstall = (s?: string) => s && navigator.clipboard?.writeText(s);
@@ -522,7 +547,11 @@ const copyInstall = (s?: string) => s && navigator.clipboard?.writeText(s);
 )}
 ```
 
-- [ ] **Step 2: Trim `behaviors.ts`** — run `git grep "data:" src/lab/effects.ts`; only bespoke specimens with `data` hooks need handlers. Remove now-unused branches (`magnetic`/`tilt`/`ripple`/`stagger`/`scramble`/`spotlight` if no longer referenced). Keep `initCursor` + cursor modes (rail-driven). Ensure no `noUnusedLocals`/`noUnusedParameters` violations.
+- [ ] **Step 2: Trim the dead JS-behavior pipeline.** VERIFIED (`grep "data:" src/lab/effects.ts` → none): NO specimen emits `data-*` hooks anymore, so the ENTIRE `initBehaviors` function is dead (all 6 scanners: `magnetic`/`tilt`/`spotlight`/`ripple`/`stagger`/`scramble`). Remove the whole pipeline end-to-end:
+  - `behaviors.ts`: delete `initBehaviors` and its 6 handler blocks; KEEP `initCursor` + `CursorMode` + the `Cleanup` type (rail-driven, still used).
+  - `Lab.tsx`: drop `initBehaviors` from the import (keep `initCursor`/`CursorMode`), delete the `useEffect` that calls `initBehaviors`, delete the `da()` helper, the `const data = da(v.data)` line, and every `{...data}` spread in `Demo()`'s switch arms.
+  - `effects.ts`: remove the now-unused `data?: Record<string, string>` field from the `Variant` interface (and its doc comment). If the build/tests flag `data` as referenced anywhere else, update that reference too.
+  - Ensure no `noUnusedLocals`/`noUnusedParameters` violations after the trim.
 - [ ] **Step 3: Add the C/E bespoke assertion** to `effects.test.ts`:
 
 ```ts
@@ -546,30 +575,57 @@ git commit -m "feat(lab): source filter + install-copy metadata; trim superseded
 
 ### Task 11: Lab *surface* UI/UX redesign
 
-Give the bench itself a deliberate design pass (the user explicitly asked for this — the components are the focus, but the surface should look intentional, not utilitarian). **Use the `frontend-design` skill** for aesthetic direction. The lab is dev-only, so shadcn primitives used here never ship to production.
+Give the bench a deliberate design pass (the user explicitly asked for this). The lab is dev-only, so anything used here never ships to production.
 
-**Files:**
-- Modify: `src/lab/lab.css` (the bulk — restyle shell, rail, controls, spec cards; remove dead CSS for converted families A/B/D/F/G/I while keeping C `.ch-*`, E `.ln-*`, H bespoke `.ld-*`, and shell/rail/spec/stage styles)
-- Modify: `src/lab/Lab.tsx` (structural/markup changes the redesign needs; update the footer string `explore/ui-effects-lab` → `explore/ui-lab-v2`)
-- Optionally add shadcn primitives for controls (e.g. `npx shadcn@latest add toggle-group tabs`) if they improve the controls — dev-only.
+**DESIGN DIRECTION (decided — "instrument-grade specimen catalog"):** dark, brand-coherent teal/indigo, mono-forward technical labeling, a calm measured grid. The taxonomy (families A–I, codes like `BTN·04`, source tags) is treated as a real index, not decoration. **Signature element:** each specimen sits in a *measured vitrine* — a precise framed stage with faint low-opacity corner ticks + inset hairline — under a museum-style metadata plate carrying a colour-coded **source pill**. Family dividers carry a large ghosted family letter watermark. Spend the boldness on the vitrine + source-coding; keep everything else quiet.
 
-**Design objectives (concrete):**
-1. **Hierarchy & layout:** clearer separation of rail / sticky global toolbar / specimen canvas; consistent vertical rhythm; comfortable max-width on the canvas; family sections with strong, scannable headers (code chip + title + count + one-line desc).
-2. **Spec cards:** consistent stage sizing per `kind`; obvious hover affordance; a tidy metadata block (code · name · blurb · component/siteTarget · install-copy); legible badges (JS / LIVE / current / **source** — reactbits vs shadcn vs bespoke as a colored pill).
-3. **Controls:** the segmented controls (canvas / ambient / cursor / reduced-motion / source-filter) presented as a coherent, always-reachable toolbar; clear active states; keyboard focus-visible rings.
-4. **States:** a real lazy-loading shimmer for WebGL specimens (reuse shadcn `Skeleton` or a CSS shimmer) instead of bare "loading…"; an empty state when a filter yields nothing; reduced-motion respected (static experience) — keep the existing `rm` body-class behavior working.
-5. **Responsiveness:** rail collapses / becomes a top bar under a breakpoint; specimen grid reflows; nothing clips.
-6. **Polish:** spacing scale, borders/elevation via design tokens, smooth scroll, active-family highlight (already wired via IntersectionObserver — keep it), focus management.
+**Token additions (lab-scoped, in `lab.css` `:root`, built on globals tokens):**
+- spacing scale `--sp-1..6`: 4 / 8 / 12 / 16 / 24 / 40px
+- `--lab-rail: 248px`; `--lab-panel: rgba(18,24,38,0.55)`; `--lab-line-soft: rgba(148,163,184,0.10)`
+- source colours: `--src-reactbits: #5eead4` (teal) · `--src-shadcn: #818cf8` (indigo) · `--src-bespoke: #e0b170` (warm amber — distinguishes hand-made)
+- type: hero h1 `clamp(30px,4.5vw,52px)`/800; family title 22px; specimen name 13.5px/600; blurb 12px; mono labels 10–11px (letter-spacing .08–.14em); code 10px mono.
 
-- [ ] **Step 1: Invoke `frontend-design`** and decide the concrete visual direction (layout grid, type scale, control treatment, card design, badge/pill system) consistent with the site's dark teal/indigo tokens.
-- [ ] **Step 2: Implement** the redesign in `lab.css` + `Lab.tsx` per the objectives above; remove dead family CSS as you go; update the footer branch string.
-- [ ] **Step 3: Build + suite** — `npm run build && npm test` (no unused-var failures from the CSS/markup trim; tests still green).
-- [ ] **Step 4: Visual verification across breakpoints** — chrome-devtools: walk every family at desktop width; `resize_page` to a narrow width and confirm the rail/grid reflow; toggle the source filter (incl. an empty result), reduced-motion, and a lazy WebGL specimen (shimmer → render). No console errors.
-- [ ] **Step 5: Commit**
+**Three-zone layout** (replaces the all-in-rail layout):
+```
+┌──────────┬─────────────────────────────────────────┐
+│  RAIL    │  STICKY FILTER TOOLBAR  (Source · N/58)  │  ← sticky top of canvas
+│ (sticky, ├─────────────────────────────────────────┤
+│  full-ht)│  HERO (thesis)                           │
+│ brand+   │  ── A · CTA buttons ───────── ⟨ghost A⟩  │  ← family divider
+│ conv.stat│   ┌vitrine┐ ┌vitrine┐ ┌vitrine┐          │
+│ index A–I│   │ DEMO  │ │ DEMO  │ │ DEMO  │  cards    │
+│ (mono +  │   │plate● │ │plate● │ │plate● │           │
+│  counts) │   └───────┘ └───────┘ └───────┘          │
+│ VIEW ctrl│                                          │
+└──────────┴─────────────────────────────────────────┘
+```
+- **Rail:** brand + a one-line conversion stat; the family index (letter monogram · title · count, active-highlight kept via the existing IntersectionObserver); the **View** controls (Canvas / Ambient / Cursor / Reduced-motion) grouped under a label.
+- **Sticky filter toolbar** (top of the canvas, `position: sticky; top: 0`): the **Source** segmented control + a live "showing N of 58" count. This is the always-reachable global toolbar.
+- **Canvas:** hero, then family sections (dividers) and the vitrine grid.
+
+**CSS keep/remove (verified against current `lab.css`):**
+- **REMOVE (dead — families converted to libraries):** `.btn` + all `.bt-*` + `.ripple-ink` (A); `.ph`/`.port`/`.port__img` + all `.po-*` (B); `.card`/`.card__*` + all `.cd-*` (D); `.htxt` + all `.hd-*` + `.hd-stagger .ch` (F); `.bgtile` + all `.bg-*` incl `.bg-mesh`/`.bg-gridpan` (G — but KEEP the `.amb-*` ambient classes, still used by the rail control); `.ld-skeleton` + `@keyframes skeleton` (H — replaced by shadcn); `.gl-frost/.gl-vibrant/.gl-light/.gl-heavy/.gl-teal/.gl-noise(+::after)/.gl-specular/.gl-bright/.gl-dark` (I). Drop now-orphaned keyframes (`ringPulse`, `neonPulse`, `ripple`, `chipGlow`? keep—chips use it, `bounce`—chips use it, `glitchA/B`, `caret`, `charIn`, `aurora`?—ambient uses it, `progFill`—loader uses it). Verify each keyframe has a remaining user before deleting.
+- **KEEP (still live):** `.cw`/`.chip`/`.ch-*` (C); `.lnk`/`.ln-*` (E); `.ld-ring`/`.ld-dots`/`.ld-bar`/`.ld-prog` (H); `.glass-scene*`/`.glass`/`.gl-nav` (I); `.cursor-dot`/`.cursor-ring`/`.trail-dot`/`.cursor-canvas` (cursor control); `.ambient`/`.amb-*` (ambient control); `.animate-star-movement-*` + their keyframes (StarBorder); `@property --p`; `.spec__stage:has(.glass-scene)` + `#backgrounds .spec__stage` sizing.
+- **RENAME `.grid` → `.lab-grid`** (and update `Lab.tsx`) to kill the bare-class collision with reactbits components that use `grid` (the GlassIcons bug class). This generalises the fix; GLS·02's `!grid-cols-[auto_auto]` override can stay.
+
+**`Lab.tsx` structural changes:**
+- Move the **Source** control into a new sticky `.toolbar` at the top of the `.stage`; add the live "N of 58" count (sum of `filtered` lengths). Keep the other controls in the rail under a "View" group.
+- Add a **source pill** to each `.spec__meta` (or as a badge): label = source, colour from `--src-*`. Keep JS/LIVE/current badges.
+- **Lazy shimmer:** replace `<span className="spec__loading">loading…</span>` in `LibDemo`'s Suspense fallback with a CSS shimmer block sized to the stage (reuse the shadcn `Skeleton` or a `.spec__shimmer` pulse).
+- **Empty state:** if every family filters to empty (defensive), render a centered empty-state message in the canvas.
+- **Remove the dead "Replay all glares" control + `replayGlares()`** — no `.btn.glare` specimens remain. Keep `onStageMove` (spot canvas) and the cursor/rm effects.
+- Update the footer string `explore/ui-effects-lab` → `explore/ui-lab-v2`.
+
+**Per-kind stage sizing (fixes deferred overflow — tune in the Chrome gate):** consistent default stage ~`min-height: 120px`; give large library specimens room so nothing clips — **portraits** (ProfileCard ~388×540) and **cards** (MagicBento renders its full native bento) get a taller capped stage (`max-height` + `overflow: hidden`, centered) or a `transform: scale()` to fit; backgrounds keep their 160px; glass keeps 124px. The orchestrator will measure each kind in the gate and tune.
+
+- [ ] **Step 1: Implement** the redesign in `lab.css` + `Lab.tsx` per the direction above — restyle shell/rail/toolbar/dividers/vitrine cards/states, remove the dead CSS, do the `.grid`→`.lab-grid` rename, add source pills + lazy shimmer + empty state, remove Replay-glares, update the footer string. No new deps required (a CSS shimmer is fine); shadcn `Skeleton` may be reused.
+- [ ] **Step 2: Build + suite** — `npm run build && npm test` (no unused-var failures from the trim; 75 tests stay green — lab DOM isn't asserted by tests, so styling/markup changes are safe).
+- [ ] **Step 3: ORCHESTRATOR Chrome gate across breakpoints** — walk every family at desktop; `resize_page` narrow and confirm the rail→top-bar reflow + grid reflow with nothing clipping; toggle the Source filter (incl. forcing an empty result), Reduced-motion, and a lazy WebGL specimen (shimmer → render); confirm source pills colour-code correctly and the vitrine/dividers read as intended. Fold visual fixes into the commit. No console errors.
+- [ ] **Step 4: Commit**
 
 ```bash
 git add src/lab/lab.css src/lab/Lab.tsx src/components/ui
-git commit -m "feat(lab): redesign the lab surface — layout, controls, spec cards, states, responsive"
+git commit -m "feat(lab): redesign surface — instrument-grade catalog (vitrine cards, source pills, sticky toolbar, responsive)"
 ```
 
 ---
