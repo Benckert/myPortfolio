@@ -372,3 +372,22 @@
 
 /* Hero tech-logo marquee at the slide bottom. */
 .hero__logos { margin-top: 44px; }
+
+/* Contact social links — animated [ … ] brackets on hover AND focus. */
+.contact__socials a { position: relative; }
+.contact__socials a::before,
+.contact__socials a::after {
+  opacity: 0;
+  color: var(--accent);
+  transition: opacity 0.2s ease, margin 0.2s ease;
+}
+.contact__socials a::before { content: '['; margin-right: 0; }
+.contact__socials a::after { content: ']'; margin-left: 0; }
+.contact__socials a:hover::before,
+.contact__socials a:focus-visible::before { opacity: 1; margin-right: 6px; }
+.contact__socials a:hover::after,
+.contact__socials a:focus-visible::after { opacity: 1; margin-left: 6px; }
+@media (prefers-reduced-motion: reduce) {
+  .contact__socials a::before,
+  .contact__socials a::after { transition: none; }
+}

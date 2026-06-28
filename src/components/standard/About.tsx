@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { content } from '../../data/content';
 import { fadeUp, revealViewport } from '../../lib/motion';
 import { Lightbox } from './Lightbox';
+import TiltedCard from '../reactbits/TiltedCard';
 
 export function About() {
   const [zoom, setZoom] = useState(false);
@@ -40,14 +41,17 @@ export function About() {
                 onClick={() => setZoom(true)}
                 aria-label={`Enlarge portrait of ${name}`}
               >
-                <motion.img
-                  className="about__portrait"
-                  src={portraitUrl}
-                  alt={`Portrait of ${name}`}
-                  width={240}
-                  height={240}
-                  loading="lazy"
-                  layoutId="portrait-about"
+                <TiltedCard
+                  imageSrc={portraitUrl}
+                  altText={`Portrait of ${name}`}
+                  captionText="Click to enlarge"
+                  containerHeight="240px"
+                  containerWidth="240px"
+                  imageHeight="240px"
+                  imageWidth="240px"
+                  rotateAmplitude={12}
+                  scaleOnHover={1.06}
+                  showMobileWarning={false}
                 />
               </button>
               <Lightbox
@@ -55,7 +59,6 @@ export function About() {
                 alt={`Portrait of ${name}`}
                 open={zoom}
                 onClose={() => setZoom(false)}
-                layoutId="portrait-about"
               />
             </div>
           )}
