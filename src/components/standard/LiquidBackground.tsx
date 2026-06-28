@@ -1,5 +1,6 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
+import { cssVar } from '../../lib/cssVar';
 
 const LiquidEther = lazy(() => import('../reactbits/LiquidEther'));
 
@@ -7,12 +8,19 @@ const LiquidEther = lazy(() => import('../reactbits/LiquidEther'));
  *  it is code-split out of the main bundle, and renders nothing under reduced motion. */
 export function LiquidBackground() {
   const reduced = usePrefersReducedMotion();
+  // Token-driven palette (dark base has no site token — shader tint only).
+  // Memoised so the array identity is stable: LiquidEther rebuilds its WebGL
+  // context whenever `colors` changes identity.
+  const colors = useMemo(
+    () => ['#0b2e2a', cssVar('--accent', '#5eead4'), cssVar('--accent-2', '#818cf8')],
+    [],
+  );
   if (reduced) return null;
   return (
     <div className="liquid-bg" aria-hidden="true" data-testid="liquid-bg">
       <Suspense fallback={null}>
         <LiquidEther
-          colors={['#0b2e2a', '#5eead4', '#818cf8']}
+          colors={colors}
           resolution={0.4}
           autoIntensity={1.6}
           autoSpeed={0.4}

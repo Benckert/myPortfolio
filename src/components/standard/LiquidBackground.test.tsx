@@ -1,6 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { LiquidBackground } from './LiquidBackground';
+
+const realMatchMedia = window.matchMedia;
 
 function setReducedMotion(reduced: boolean) {
   window.matchMedia = ((q: string) => ({
@@ -16,6 +18,10 @@ function setReducedMotion(reduced: boolean) {
 }
 
 describe('LiquidBackground', () => {
+  afterEach(() => {
+    window.matchMedia = realMatchMedia;
+  });
+
   it('renders a fixed background container when motion is allowed', () => {
     setReducedMotion(false);
     render(<LiquidBackground />);

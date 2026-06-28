@@ -344,6 +344,7 @@
 .contact__socials a { position: relative; }
 .contact__socials a::before,
 .contact__socials a::after {
+  display: inline-block;
   opacity: 0;
   color: var(--accent);
   transition: opacity 0.2s ease, margin 0.2s ease;

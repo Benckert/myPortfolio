@@ -1,6 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { Typewriter } from './Typewriter';
+
+const realMatchMedia = window.matchMedia;
 
 function setReducedMotion(reduced: boolean) {
   window.matchMedia = ((q: string) => ({
@@ -16,6 +18,10 @@ function setReducedMotion(reduced: boolean) {
 }
 
 describe('Typewriter', () => {
+  afterEach(() => {
+    window.matchMedia = realMatchMedia;
+  });
+
   it('shows the full text immediately under reduced motion', () => {
     setReducedMotion(true);
     const { container } = render(<Typewriter text="Ada Lovelace" />);

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { content } from '../../data/content';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
+import { cssVar } from '../../lib/cssVar';
 import { Lightbox } from './Lightbox';
 import { Typewriter } from './Typewriter';
 import { Spotlight } from './Spotlight';
@@ -42,7 +43,7 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
             <Spotlight>
               <a className="btn btn--primary" href="#projects">View my work</a>
             </Spotlight>
-            <StarBorder as="a" href="#contact" color="#5eead4" speed="5s" className="hero__starcta">
+            <StarBorder as="a" href="#contact" color={cssVar('--accent', '#5eead4')} speed="5s" className="hero__starcta">
               Get in touch
             </StarBorder>
           </div>
@@ -96,7 +97,7 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
           gap={48}
           logoHeight={28}
           fadeOut
-          fadeOutColor="#0b0f17"
+          fadeOutColor={cssVar('--bg', '#0b0f17')}
           ariaLabel="Technologies I work with"
         />
       </div>
