@@ -74,6 +74,10 @@ export function Lightbox({ src, alt, open, onClose, layoutId }: LightboxProps) {
             src={src}
             alt={alt}
             layoutId={reduced ? undefined : layoutId}
+            initial={reduced || layoutId ? false : { opacity: 0, scale: 0.92 }}
+            animate={reduced || layoutId ? undefined : { opacity: 1, scale: 1 }}
+            exit={reduced || layoutId ? undefined : { opacity: 0, scale: 0.92 }}
+            transition={{ duration: 0.2 }}
             onClick={(e) => e.stopPropagation()}
           />
           <button
