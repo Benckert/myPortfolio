@@ -22,6 +22,27 @@
 }
 .btn:hover::after { left: 140%; }
 
+/* Spotlight — cursor-follow radial highlight over a control. */
+.spotlight { position: relative; display: inline-block; border-radius: 12px; }
+.spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  background: radial-gradient(
+    120px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(94, 234, 212, 0.35),
+    transparent 60%
+  );
+}
+.spotlight:hover::before { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .spotlight::before { display: none; }
+}
+
 /* Nav */
 .nav {
   position: sticky; top: 0; z-index: 40;
@@ -46,18 +67,6 @@
 
 /* Hero */
 .hero { position: relative; overflow: hidden; padding: 48px 0; }
-.hero__aurora {
-  position: absolute; inset: -20% -10% auto -10%; height: 520px;
-  background:
-    radial-gradient(40% 60% at 20% 30%, rgba(94, 234, 212, 0.25), transparent 60%),
-    radial-gradient(40% 60% at 80% 20%, rgba(129, 140, 248, 0.25), transparent 60%);
-  filter: blur(20px);
-  animation: drift 14s ease-in-out infinite alternate;
-}
-@keyframes drift {
-  from { transform: translateY(0) scale(1); }
-  to { transform: translateY(20px) scale(1.05); }
-}
 .hero__inner {
   position: relative;
   display: flex;
@@ -78,17 +87,8 @@
   color: var(--accent); margin-right: 6px;
 }
 .hero__portrait-wrap { flex-shrink: 0; }
-.hero__portrait {
-  display: block;
-  width: 320px;
-  height: 320px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--border);
-}
 @media (max-width: 860px) {
   .hero__inner { flex-direction: column-reverse; gap: 32px; }
-  .hero__portrait { width: 160px; height: 160px; }
 }
 
 /* Generic section rhythm (used by later tasks) */
@@ -107,17 +107,8 @@
 .about__bio { font-size: 18px; color: var(--fg); max-width: 720px; line-height: 1.7; }
 .about__loc { color: var(--muted); margin-top: 16px; font-family: var(--font-mono); font-size: 14px; }
 .about__portrait-wrap { flex-shrink: 0; }
-.about__portrait {
-  display: block;
-  width: 240px;
-  height: 240px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--border);
-}
 @media (max-width: 720px) {
   .about__layout { flex-direction: column; }
-  .about__portrait { width: 160px; height: 160px; }
 }
 
 /* Back to top */
@@ -224,19 +215,6 @@
   display: block; padding: 0; border: none; background: none;
   border-radius: 50%; line-height: 0; cursor: pointer;
 }
-.hero__portrait,
-.about__portrait {
-  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-}
-.portrait-btn:hover .hero__portrait,
-.portrait-btn:focus-visible .hero__portrait,
-.portrait-btn:hover .about__portrait,
-.portrait-btn:focus-visible .about__portrait {
-  transform: scale(1.04);
-  border-color: var(--accent);
-  box-shadow: 0 0 0 4px rgba(94, 234, 212, 0.18), 0 18px 44px rgba(0, 0, 0, 0.45);
-}
-
 /* Lightbox — the expanded portrait shown on click. */
 .lightbox {
   position: fixed; inset: 0; z-index: 120;
@@ -274,8 +252,128 @@
 /* Honour reduced-motion: drop the decorative glare and hover transforms. */
 @media (prefers-reduced-motion: reduce) {
   .btn::after { display: none; }
-  .portrait-btn:hover .hero__portrait,
-  .portrait-btn:focus-visible .hero__portrait,
-  .portrait-btn:hover .about__portrait,
-  .portrait-btn:focus-visible .about__portrait { transform: none; }
+}
+
+/* Faint fixed WebGL background — sits behind all transparent snap-sections. */
+.liquid-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+/* Slide pager — right-edge prev/next, revealed on hover of the zone or keyboard
+   focus. Coexists with .back-to-top (bottom-right). */
+.slide-pager {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px 16px 44px; /* left pad widens the hover catch toward content */
+}
+.slide-pager__btn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transform: translateX(8px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, border-color 0.15s ease;
+}
+.slide-pager:hover .slide-pager__btn,
+.slide-pager:focus-within .slide-pager__btn {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+.slide-pager__btn:hover { border-color: var(--accent); }
+.slide-pager__btn[hidden] { display: none; }
+@media (max-width: 640px) {
+  .slide-pager { display: none; } /* native snap + swipe suffices on touch */
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide-pager__btn { transition: none; }
+}
+
+/* Typewriter caret */
+.typewriter__caret {
+  display: inline-block;
+  width: 0.08em;
+  height: 1em;
+  margin-left: 0.06em;
+  background: var(--accent);
+  vertical-align: -0.12em;
+  animation: caret-blink 1s steps(1) infinite;
+}
+@keyframes caret-blink {
+  50% { opacity: 0; }
+}
+/* Once typing finishes, the caret rests: stop blinking and fade out. */
+.typewriter__caret--rest { animation: none; opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .typewriter__caret { animation: none; opacity: 0; }
+}
+
+/* LogoLoop tech icons — faint, muted, brighten slightly on hover. */
+.logoloop__icon { color: var(--muted); opacity: 0.7; transition: color 0.2s ease, opacity 0.2s ease; }
+.logoloop__icon:hover { color: var(--fg); opacity: 1; }
+
+/* Hero StarBorder CTA — add a teal glow on hover atop StarBorder's own pill. */
+.hero__starcta { transition: box-shadow 0.2s ease; }
+.hero__starcta:hover { box-shadow: 0 0 24px rgba(94, 234, 212, 0.5); }
+
+/* Hero portrait now hosts a TiltedCard (rounded rect, not a circle). */
+.portrait-btn--tilt { border-radius: 16px; }
+
+/* Hero tech-logo marquee at the slide bottom. */
+.hero__logos { margin-top: 44px; }
+
+/* Contact social links — animated [ … ] brackets on hover AND focus. */
+.contact__socials a { position: relative; }
+.contact__socials a::before,
+.contact__socials a::after {
+  opacity: 0;
+  color: var(--accent);
+  transition: opacity 0.2s ease, margin 0.2s ease;
+}
+.contact__socials a::before { content: '['; margin-right: 0; }
+.contact__socials a::after { content: ']'; margin-left: 0; }
+.contact__socials a:hover::before,
+.contact__socials a:focus-visible::before { opacity: 1; margin-right: 6px; }
+.contact__socials a:hover::after,
+.contact__socials a:focus-visible::after { opacity: 1; margin-left: 6px; }
+@media (prefers-reduced-motion: reduce) {
+  .contact__socials a::before,
+  .contact__socials a::after { transition: none; }
+}
+
+/* StarBorder glint keyframes — the vendored StarBorder applies .animate-star-movement-*
+   utilities that aren't in this project's Tailwind v4 theme. Define them here so the
+   hero "Get in touch" CTA's star border animates in production. Duration comes from the
+   component's inline animationDuration (speed prop); 6s is a fallback. */
+@keyframes star-movement-bottom {
+  0%   { transform: translate(0%, 0%);    opacity: 1; }
+  100% { transform: translate(-100%, 0%); opacity: 0; }
+}
+@keyframes star-movement-top {
+  0%   { transform: translate(0%, 0%);   opacity: 1; }
+  100% { transform: translate(100%, 0%); opacity: 0; }
+}
+.animate-star-movement-bottom { animation: star-movement-bottom 6s linear infinite alternate; }
+.animate-star-movement-top    { animation: star-movement-top 6s linear infinite alternate; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-star-movement-top,
+  .animate-star-movement-bottom { animation: none; }
 }

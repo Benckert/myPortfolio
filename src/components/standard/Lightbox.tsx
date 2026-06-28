@@ -67,13 +67,16 @@ export function Lightbox({ src, alt, open, onClose, layoutId }: LightboxProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
           />
-          {/* The shared layoutId makes the image grow + travel from its in-page
-              portrait to this centered position, then reverse on close. */}
+          {/* With layoutId: shared-layout morph from the in-page portrait. Without layoutId: fade + scale entrance/exit. */}
           <motion.img
             className="lightbox__img"
             src={src}
             alt={alt}
             layoutId={reduced ? undefined : layoutId}
+            initial={reduced || layoutId ? false : { opacity: 0, scale: 0.92 }}
+            animate={reduced || layoutId ? undefined : { opacity: 1, scale: 1 }}
+            exit={reduced || layoutId ? undefined : { opacity: 0, scale: 0.92 }}
+            transition={!(reduced || layoutId) ? { duration: 0.2 } : undefined}
             onClick={(e) => e.stopPropagation()}
           />
           <button

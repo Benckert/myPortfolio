@@ -3,8 +3,11 @@ import { motion } from 'framer-motion';
 import { content } from '../../data/content';
 import { fadeUp, revealViewport } from '../../lib/motion';
 import { Lightbox } from './Lightbox';
+import TiltedCard from '../reactbits/TiltedCard';
+import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 
 export function About() {
+  const reduced = usePrefersReducedMotion();
   const [zoom, setZoom] = useState(false);
   const { bio, location, name, portraitUrl } = content.profile;
   return (
@@ -40,14 +43,17 @@ export function About() {
                 onClick={() => setZoom(true)}
                 aria-label={`Enlarge portrait of ${name}`}
               >
-                <motion.img
-                  className="about__portrait"
-                  src={portraitUrl}
-                  alt={`Portrait of ${name}`}
-                  width={240}
-                  height={240}
-                  loading="lazy"
-                  layoutId="portrait-about"
+                <TiltedCard
+                  imageSrc={portraitUrl}
+                  altText={`Portrait of ${name}`}
+                  captionText="Click to enlarge"
+                  containerHeight="240px"
+                  containerWidth="240px"
+                  imageHeight="240px"
+                  imageWidth="240px"
+                  rotateAmplitude={reduced ? 0 : 12}
+                  scaleOnHover={reduced ? 1 : 1.06}
+                  showMobileWarning={false}
                 />
               </button>
               <Lightbox
@@ -55,7 +61,6 @@ export function About() {
                 alt={`Portrait of ${name}`}
                 open={zoom}
                 onClose={() => setZoom(false)}
-                layoutId="portrait-about"
               />
             </div>
           )}

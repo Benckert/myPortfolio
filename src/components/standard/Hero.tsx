@@ -3,6 +3,12 @@ import { motion } from 'framer-motion';
 import { content } from '../../data/content';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { Lightbox } from './Lightbox';
+import { Typewriter } from './Typewriter';
+import { Spotlight } from './Spotlight';
+import { techLogos } from './techLogos';
+import StarBorder from '../reactbits/StarBorder';
+import TiltedCard from '../reactbits/TiltedCard';
+import LogoLoop from '../reactbits/LogoLoop';
 
 export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
   const reduced = usePrefersReducedMotion();
@@ -11,7 +17,6 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
 
   return (
     <section id="home" className="hero">
-      <div className="hero__aurora" aria-hidden="true" />
       <div className="container hero__inner">
         <div className="hero__text">
           <motion.p
@@ -22,14 +27,9 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
           >
             Hi, my name is
           </motion.p>
-          <motion.h1
-            className="hero__name"
-            initial={reduced ? false : { opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.05 }}
-          >
-            {name}
-          </motion.h1>
+          <h1 className="hero__name" aria-label={name}>
+            <Typewriter text={name} />
+          </h1>
           <motion.p
             className="hero__tagline"
             initial={reduced ? false : { opacity: 0, y: 16 }}
@@ -39,8 +39,12 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
             {tagline}
           </motion.p>
           <div className="hero__cta">
-            <a className="btn btn--primary" href="#projects">View my work</a>
-            <a className="btn btn--ghost" href="#contact">Get in touch</a>
+            <Spotlight>
+              <a className="btn btn--primary" href="#projects">View my work</a>
+            </Spotlight>
+            <StarBorder as="a" href="#contact" color="#5eead4" speed="5s" className="hero__starcta">
+              Get in touch
+            </StarBorder>
           </div>
           <button type="button" className="hero__hint" onClick={onOpenTerminal}>
             {(() => {
@@ -59,17 +63,21 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
           >
             <button
               type="button"
-              className="portrait-btn"
+              className="portrait-btn portrait-btn--tilt"
               onClick={() => setZoom(true)}
               aria-label={`Enlarge portrait of ${name}`}
             >
-              <motion.img
-                className="hero__portrait"
-                src={portraitUrl}
-                alt={`Portrait of ${name}`}
-                width={320}
-                height={320}
-                layoutId="portrait-hero"
+              <TiltedCard
+                imageSrc={portraitUrl}
+                altText={`Portrait of ${name}`}
+                captionText="Click to enlarge"
+                containerHeight="320px"
+                containerWidth="320px"
+                imageHeight="320px"
+                imageWidth="320px"
+                rotateAmplitude={reduced ? 0 : 12}
+                scaleOnHover={reduced ? 1 : 1.06}
+                showMobileWarning={false}
               />
             </button>
             <Lightbox
@@ -77,10 +85,20 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
               alt={`Portrait of ${name}`}
               open={zoom}
               onClose={() => setZoom(false)}
-              layoutId="portrait-hero"
             />
           </motion.div>
         )}
+      </div>
+      <div className="container hero__logos">
+        <LogoLoop
+          logos={techLogos}
+          speed={40}
+          gap={48}
+          logoHeight={28}
+          fadeOut
+          fadeOutColor="#0b0f17"
+          ariaLabel="Technologies I work with"
+        />
       </div>
     </section>
   );
