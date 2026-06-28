@@ -356,3 +356,18 @@
   .contact__socials a::before,
   .contact__socials a::after { transition: none; }
 }
+
+/* StarBorder glint keyframes — the vendored StarBorder applies .animate-star-movement-*
+   utilities that aren't in this project's Tailwind v4 theme. Define them here so the
+   hero "Get in touch" CTA's star border animates in production. Duration comes from the
+   component's inline animationDuration (speed prop); 6s is a fallback. */
+@keyframes star-movement-bottom {
+  0%   { transform: translate(0%, 0%);    opacity: 1; }
+  100% { transform: translate(-100%, 0%); opacity: 0; }
+}
+@keyframes star-movement-top {
+  0%   { transform: translate(0%, 0%);   opacity: 1; }
+  100% { transform: translate(100%, 0%); opacity: 0; }
+}
+.animate-star-movement-bottom { animation: star-movement-bottom 6s linear infinite alternate; }
+.animate-star-movement-top    { animation: star-movement-top 6s linear infinite alternate; }
