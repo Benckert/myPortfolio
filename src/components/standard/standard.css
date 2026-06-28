@@ -67,18 +67,6 @@
 
 /* Hero */
 .hero { position: relative; overflow: hidden; padding: 48px 0; }
-.hero__aurora {
-  position: absolute; inset: -20% -10% auto -10%; height: 520px;
-  background:
-    radial-gradient(40% 60% at 20% 30%, rgba(94, 234, 212, 0.25), transparent 60%),
-    radial-gradient(40% 60% at 80% 20%, rgba(129, 140, 248, 0.25), transparent 60%);
-  filter: blur(20px);
-  animation: drift 14s ease-in-out infinite alternate;
-}
-@keyframes drift {
-  from { transform: translateY(0) scale(1); }
-  to { transform: translateY(20px) scale(1.05); }
-}
 .hero__inner {
   position: relative;
   display: flex;
@@ -374,3 +362,13 @@
 /* LogoLoop tech icons — faint, muted, brighten slightly on hover. */
 .logoloop__icon { color: var(--muted); opacity: 0.7; transition: color 0.2s ease, opacity 0.2s ease; }
 .logoloop__icon:hover { color: var(--fg); opacity: 1; }
+
+/* Hero StarBorder CTA — add a teal glow on hover atop StarBorder's own pill. */
+.hero__starcta { transition: box-shadow 0.2s ease; }
+.hero__starcta:hover { box-shadow: 0 0 24px rgba(94, 234, 212, 0.5); }
+
+/* Hero portrait now hosts a TiltedCard (rounded rect, not a circle). */
+.portrait-btn--tilt { border-radius: 16px; }
+
+/* Hero tech-logo marquee at the slide bottom. */
+.hero__logos { margin-top: 44px; }
