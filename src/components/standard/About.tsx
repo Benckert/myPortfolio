@@ -4,8 +4,10 @@ import { content } from '../../data/content';
 import { fadeUp, revealViewport } from '../../lib/motion';
 import { Lightbox } from './Lightbox';
 import TiltedCard from '../reactbits/TiltedCard';
+import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 
 export function About() {
+  const reduced = usePrefersReducedMotion();
   const [zoom, setZoom] = useState(false);
   const { bio, location, name, portraitUrl } = content.profile;
   return (
@@ -49,8 +51,8 @@ export function About() {
                   containerWidth="240px"
                   imageHeight="240px"
                   imageWidth="240px"
-                  rotateAmplitude={12}
-                  scaleOnHover={1.06}
+                  rotateAmplitude={reduced ? 0 : 12}
+                  scaleOnHover={reduced ? 1 : 1.06}
                   showMobileWarning={false}
                 />
               </button>

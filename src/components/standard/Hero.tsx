@@ -75,8 +75,8 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
                 containerWidth="320px"
                 imageHeight="320px"
                 imageWidth="320px"
-                rotateAmplitude={12}
-                scaleOnHover={1.06}
+                rotateAmplitude={reduced ? 0 : 12}
+                scaleOnHover={reduced ? 1 : 1.06}
                 showMobileWarning={false}
               />
             </button>

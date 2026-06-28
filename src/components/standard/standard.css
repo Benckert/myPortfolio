@@ -320,6 +320,8 @@
 @keyframes caret-blink {
   50% { opacity: 0; }
 }
+/* Once typing finishes, the caret rests: stop blinking and fade out. */
+.typewriter__caret--rest { animation: none; opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
   .typewriter__caret { animation: none; opacity: 0; }
 }
@@ -371,3 +373,7 @@
 }
 .animate-star-movement-bottom { animation: star-movement-bottom 6s linear infinite alternate; }
 .animate-star-movement-top    { animation: star-movement-top 6s linear infinite alternate; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-star-movement-top,
+  .animate-star-movement-bottom { animation: none; }
+}
