@@ -17,6 +17,18 @@ if (typeof window !== 'undefined' && typeof window.matchMedia !== 'function') {
     }) as unknown as MediaQueryList;
 }
 
+// jsdom does not implement ResizeObserver. ClickSpark uses it to keep its
+// canvas in sync with its parent dimensions; a no-op stub lets it render.
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  class ResizeObserverStub {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+  globalThis.ResizeObserver =
+    ResizeObserverStub as unknown as typeof ResizeObserver;
+}
+
 // jsdom does not implement IntersectionObserver. Framer Motion's whileInView
 // constructs one on mount; provide a no-op stub so scroll-reveal components
 // render in tests (children are in the DOM regardless of in-view state).
