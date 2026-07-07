@@ -56,13 +56,17 @@
 .nav__links { display: flex; align-items: center; gap: 22px; }
 .nav__links a { color: var(--muted); font-size: 14px; }
 .nav__links a:hover { color: var(--fg); text-decoration: none; }
+.nav__links a.nav__active { color: var(--accent); }
 .nav__term {
   font-family: var(--font-mono); background: var(--bg-elev);
   border: 1px solid var(--border); color: var(--accent);
   border-radius: 8px; padding: 4px 8px; cursor: pointer;
 }
+/* On small screens keep the links as a scrollable row instead of hiding them. */
 @media (max-width: 640px) {
-  .nav__links a { display: none; }
+  .nav__links { gap: 14px; overflow-x: auto; scrollbar-width: none; }
+  .nav__links::-webkit-scrollbar { display: none; }
+  .nav__links a { font-size: 13px; white-space: nowrap; }
 }
 
 /* Hero */

@@ -151,6 +151,16 @@ register({
 });
 
 register({
+  name: 'history',
+  description: 'Show command history',
+  handler: (_a, ctx) =>
+    ctx.history.map((h, i) => ({
+      type: 'text' as const,
+      text: `  ${String(i + 1).padStart(3)}  ${h}`,
+    })),
+});
+
+register({
   name: 'sudo',
   description: 'Try it and see',
   handler: () => [
