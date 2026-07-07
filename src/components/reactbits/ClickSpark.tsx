@@ -30,7 +30,8 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sparksRef = useRef<Spark[]>([]);
-  const startTimeRef = useRef<number | null>(null);
+  const animationIdRef = useRef<number | null>(null);
+  const drawRef = useRef<((timestamp: number) => void) | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -79,9 +80,7 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    let animationId: number;
     const draw = (timestamp: number) => {
-      if (!startTimeRef.current) startTimeRef.current = timestamp;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       sparksRef.current = sparksRef.current.filter((spark: Spark) => {
         const elapsed = timestamp - spark.startTime;
@@ -102,10 +101,17 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
         ctx.stroke();
         return true;
       });
-      animationId = requestAnimationFrame(draw);
+      // only keep animating while sparks are alive — the loop is (re)started
+      // from handleClick, so the canvas costs nothing when idle
+      animationIdRef.current =
+        sparksRef.current.length > 0 ? requestAnimationFrame(draw) : null;
     };
-    animationId = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(animationId);
+    drawRef.current = draw;
+    return () => {
+      if (animationIdRef.current !== null) cancelAnimationFrame(animationIdRef.current);
+      animationIdRef.current = null;
+      drawRef.current = null;
+    };
   }, [sparkColor, sparkSize, sparkRadius, sparkCount, duration, easeFunc, extraScale]);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>): void => {
@@ -122,6 +128,9 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
       startTime: now
     }));
     sparksRef.current.push(...newSparks);
+    if (animationIdRef.current === null && drawRef.current) {
+      animationIdRef.current = requestAnimationFrame(drawRef.current);
+    }
   };
 
   return (

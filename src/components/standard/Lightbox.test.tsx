@@ -42,4 +42,16 @@ describe('Lightbox', () => {
     await userEvent.keyboard('{Escape}');
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it('moves focus to the close button on open and restores it on close', () => {
+    const trigger = document.createElement('button');
+    document.body.appendChild(trigger);
+    trigger.focus();
+    const { rerender } = render(<Lightbox src="/p.svg" alt="P" open={false} onClose={() => {}} />);
+    rerender(<Lightbox src="/p.svg" alt="P" open onClose={() => {}} />);
+    expect(screen.getByRole('button', { name: /close/i })).toHaveFocus();
+    rerender(<Lightbox src="/p.svg" alt="P" open={false} onClose={() => {}} />);
+    expect(trigger).toHaveFocus();
+    trigger.remove();
+  });
 });

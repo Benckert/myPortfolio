@@ -54,6 +54,18 @@ describe('useMode', () => {
     expect(result.current.mode).toBe('standard');
   });
 
+  it('leaving #terminal via hashchange (back button) persists the mode', () => {
+    const { result } = renderHook(() => useMode());
+    act(() => result.current.open());
+    expect(localStorage.getItem('portfolio-mode')).toBe('terminal');
+    act(() => {
+      window.location.hash = '';
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    });
+    expect(result.current.mode).toBe('standard');
+    expect(localStorage.getItem('portfolio-mode')).toBe('standard');
+  });
+
   it('Escape closes the terminal', () => {
     const { result } = renderHook(() => useMode());
     act(() => result.current.open());

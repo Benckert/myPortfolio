@@ -1,14 +1,9 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { content } from '../../data/content';
 import { fadeUp, revealViewport } from '../../lib/motion';
-import { Lightbox } from './Lightbox';
-import TiltedCard from '../reactbits/TiltedCard';
-import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
+import { Portrait } from './Portrait';
 
 export function About() {
-  const reduced = usePrefersReducedMotion();
-  const [zoom, setZoom] = useState(false);
   const { bio, location, name, portraitUrl } = content.profile;
   return (
     <section id="about" className="section">
@@ -37,31 +32,7 @@ export function About() {
           </div>
           {portraitUrl && (
             <div className="about__portrait-wrap">
-              <button
-                type="button"
-                className="portrait-btn"
-                onClick={() => setZoom(true)}
-                aria-label={`Enlarge portrait of ${name}`}
-              >
-                <TiltedCard
-                  imageSrc={portraitUrl}
-                  altText={`Portrait of ${name}`}
-                  captionText="Click to enlarge"
-                  containerHeight="240px"
-                  containerWidth="240px"
-                  imageHeight="240px"
-                  imageWidth="240px"
-                  rotateAmplitude={reduced ? 0 : 12}
-                  scaleOnHover={reduced ? 1 : 1.06}
-                  showMobileWarning={false}
-                />
-              </button>
-              <Lightbox
-                src={portraitUrl}
-                alt={`Portrait of ${name}`}
-                open={zoom}
-                onClose={() => setZoom(false)}
-              />
+              <Portrait src={portraitUrl} name={name} size={240} />
             </div>
           )}
         </div>

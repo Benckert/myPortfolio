@@ -44,7 +44,7 @@ Three architectural ideas tie the codebase together:
 
 ### Motion & accessibility
 
-Animations use Framer Motion with shared variants in `src/lib/motion.ts` (`fadeUp`, `staggerContainer`) and a `useScrollReveal` hook wrapping `useInView`. Respect `usePrefersReducedMotion` — reduced-motion users must get a static experience. Accessibility is tested (`a11y.test.tsx`), so preserve focus management (terminal restores focus on exit), the skip-link, and ARIA labels.
+Animations use Framer Motion with shared variants in `src/lib/motion.ts` (`fadeUp`, `staggerContainer`, `revealViewport`). Respect `usePrefersReducedMotion` — reduced-motion users must get a static experience. Accessibility is tested (`a11y.test.tsx`), so preserve focus management (terminal restores focus on exit), the skip-link, and ARIA labels.
 
 ### Dev-only Interaction Lab
 

@@ -19,10 +19,12 @@ export function Lightbox({ src, alt, open, onClose, layoutId }: LightboxProps) {
   const reduced = usePrefersReducedMotion();
   const closeRef = useRef<HTMLButtonElement>(null);
 
-  // Lock page scroll + focus the close button while open. Locking also keeps
-  // the in-page portrait stationary, so the return animation lands correctly.
+  // Lock page scroll + focus the close button while open, then hand focus back
+  // to the trigger on close. Locking also keeps the in-page portrait
+  // stationary, so the return animation lands correctly.
   useEffect(() => {
     if (!open) return;
+    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     closeRef.current?.focus();
     const { documentElement: html, body } = document;
     const prev = { html: html.style.overflow, body: body.style.overflow };
@@ -31,6 +33,7 @@ export function Lightbox({ src, alt, open, onClose, layoutId }: LightboxProps) {
     return () => {
       html.style.overflow = prev.html;
       body.style.overflow = prev.body;
+      previouslyFocused?.focus();
     };
   }, [open]);
 

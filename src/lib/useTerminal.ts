@@ -13,6 +13,8 @@ export interface UseTerminal {
   entries: ScrollbackEntry[];
   input: string;
   setInput: (s: string) => void;
+  /** Run a specific line directly (e.g. a command chip), bypassing the input state. */
+  run: (line: string) => void;
   submit: () => void;
   historyUp: () => void;
   historyDown: () => void;
@@ -39,30 +41,34 @@ export function useTerminal(opts: { onExit: () => void }): UseTerminal {
     setEntries((prev) => [...prev, { id: idRef.current++, input: entryInput, output }]);
   }, []);
 
-  const submit = useCallback(() => {
-    const line = input;
-    const trimmed = line.trim();
-    if (trimmed) historyRef.current.push(trimmed);
-    historyIndexRef.current = -1;
+  const run = useCallback(
+    (line: string) => {
+      const trimmed = line.trim();
+      if (trimmed) historyRef.current.push(trimmed);
+      historyIndexRef.current = -1;
 
-    const output = runCommand(line, {
-      content,
-      history: [...historyRef.current],
-      actions: {
-        clear: () => setEntries([]),
-        exit: opts.onExit,
-        openUrl: (url) => window.open(url, '_blank', 'noopener,noreferrer'),
-      },
-    });
+      const output = runCommand(line, {
+        content,
+        history: [...historyRef.current],
+        actions: {
+          clear: () => setEntries([]),
+          exit: opts.onExit,
+          openUrl: (url) => window.open(url, '_blank', 'noopener,noreferrer'),
+        },
+      });
 
-    // `clear` empties entries via its action; don't also append the echo.
-    if (trimmed.split(/\s+/)[0]?.toLowerCase() === 'clear') {
+      // `clear` empties entries via its action; don't also append the echo.
+      if (trimmed.split(/\s+/)[0]?.toLowerCase() === 'clear') {
+        setInput('');
+        return;
+      }
+      append(line, output);
       setInput('');
-      return;
-    }
-    append(line, output);
-    setInput('');
-  }, [input, append, opts.onExit]);
+    },
+    [append, opts.onExit],
+  );
+
+  const submit = useCallback(() => run(input), [run, input]);
 
   const historyUp = useCallback(() => {
     const h = historyRef.current;
@@ -116,5 +122,5 @@ export function useTerminal(opts: { onExit: () => void }): UseTerminal {
     }
   }, [input, append]);
 
-  return { entries, input, setInput, submit, historyUp, historyDown, complete };
+  return { entries, input, setInput, run, submit, historyUp, historyDown, complete };
 }
