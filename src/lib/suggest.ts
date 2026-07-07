@@ -29,7 +29,7 @@ export function suggestCommand(input: string, names: string[]): string | null {
       best = name;
     }
   }
-  // only suggest if reasonably close (<= ~third of the word)
+  // only suggest if reasonably close (<= ~half the input length, min 2)
   const threshold = Math.max(2, Math.floor(input.length / 2));
   return best !== null && bestDist <= threshold ? best : null;
 }

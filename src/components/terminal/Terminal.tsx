@@ -13,6 +13,7 @@ const INTRO = [
 export function Terminal({ onExit }: { onExit: () => void }) {
   const term = useTerminal({ onExit });
   const inputRef = useRef<HTMLInputElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [windowed, setWindowed] = useState(false);
   const [minimized, setMinimized] = useState(false);
@@ -52,10 +53,30 @@ export function Terminal({ onExit }: { onExit: () => void }) {
     }
   }
 
+  // The dialog is aria-modal, so keep Tab cycling inside it — the site behind
+  // the full-screen overlay must not receive focus. The prompt input is exempt:
+  // its own handler owns Tab for completion.
+  function trapFocus(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (e.key !== 'Tab' || e.target === inputRef.current) return;
+    const root = rootRef.current;
+    if (!root) return;
+    const focusables = Array.from(
+      root.querySelectorAll<HTMLElement>('button, a[href], input'),
+    ).filter((el) => el.offsetParent !== null); // skip hidden (e.g. chips on desktop)
+    if (focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
   function pickChip(cmd: string) {
-    term.setInput(cmd);
-    // submit on next tick after state set
-    requestAnimationFrame(() => term.submit());
+    term.run(cmd);
     inputRef.current?.focus();
   }
 
@@ -80,10 +101,12 @@ export function Terminal({ onExit }: { onExit: () => void }) {
 
   return (
     <div
+      ref={rootRef}
       className={`term-root${windowed ? ' term-root--windowed' : ''}`}
       role="dialog"
       aria-label="Interactive terminal"
       aria-modal="true"
+      onKeyDown={trapFocus}
     >
       <div className="term-bar">
         <button

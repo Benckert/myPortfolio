@@ -33,7 +33,7 @@ export function useMode() {
       if (mode === 'standard' && (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         open();
-      } else if (e.key === 'Escape') {
+      } else if (mode === 'terminal' && e.key === 'Escape') {
         close();
       }
     }
@@ -41,10 +41,13 @@ export function useMode() {
     return () => window.removeEventListener('keydown', onKey);
   }, [open, close, mode]);
 
-  // react to hash changes (back/forward, shared links)
+  // react to hash changes (back/forward, shared links); persist so a mode
+  // change via the back button survives a reload like open()/close() do
   useEffect(() => {
     function onHash() {
-      setMode(window.location.hash === '#terminal' ? 'terminal' : 'standard');
+      const next: Mode = window.location.hash === '#terminal' ? 'terminal' : 'standard';
+      setMode(next);
+      localStorage.setItem(KEY, next);
     }
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);

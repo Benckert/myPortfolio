@@ -1,19 +1,19 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { content } from '../../data/content';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { cssVar } from '../../lib/cssVar';
-import { Lightbox } from './Lightbox';
+import { Portrait } from './Portrait';
 import { Typewriter } from './Typewriter';
 import { Spotlight } from './Spotlight';
 import { techLogos } from './techLogos';
 import StarBorder from '../reactbits/StarBorder';
-import TiltedCard from '../reactbits/TiltedCard';
 import LogoLoop from '../reactbits/LogoLoop';
+
+const IS_MAC =
+  typeof navigator !== 'undefined' && /Mac|iPhone|iPad/i.test(navigator.platform || navigator.userAgent);
 
 export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
   const reduced = usePrefersReducedMotion();
-  const [zoom, setZoom] = useState(false);
   const { name, tagline, portraitUrl } = content.profile;
 
   return (
@@ -48,11 +48,8 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
             </StarBorder>
           </div>
           <button type="button" className="hero__hint" onClick={onOpenTerminal}>
-            {(() => {
-              const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/i.test(navigator.platform || navigator.userAgent);
-              const mod = isMac ? '⌘' : 'Ctrl';
-              return <>psst — press <kbd className="hero__hint-key">{mod}</kbd> <kbd className="hero__hint-key">K</kbd> for terminal mode</>;
-            })()}
+            psst — press <kbd className="hero__hint-key">{IS_MAC ? '⌘' : 'Ctrl'}</kbd>{' '}
+            <kbd className="hero__hint-key">K</kbd> for terminal mode
           </button>
         </div>
         {portraitUrl && (
@@ -62,31 +59,7 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.18 }}
           >
-            <button
-              type="button"
-              className="portrait-btn portrait-btn--tilt"
-              onClick={() => setZoom(true)}
-              aria-label={`Enlarge portrait of ${name}`}
-            >
-              <TiltedCard
-                imageSrc={portraitUrl}
-                altText={`Portrait of ${name}`}
-                captionText="Click to enlarge"
-                containerHeight="320px"
-                containerWidth="320px"
-                imageHeight="320px"
-                imageWidth="320px"
-                rotateAmplitude={reduced ? 0 : 12}
-                scaleOnHover={reduced ? 1 : 1.06}
-                showMobileWarning={false}
-              />
-            </button>
-            <Lightbox
-              src={portraitUrl}
-              alt={`Portrait of ${name}`}
-              open={zoom}
-              onClose={() => setZoom(false)}
-            />
+            <Portrait src={portraitUrl} name={name} size={320} className="portrait-btn--tilt" />
           </motion.div>
         )}
       </div>

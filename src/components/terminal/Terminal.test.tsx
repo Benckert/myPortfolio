@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Terminal } from './Terminal';
 
@@ -10,6 +10,15 @@ describe('Terminal', () => {
     await userEvent.type(input, 'help{Enter}');
     // Target only the heading node — the help body also contains the substring
     // "available commands" in the help row's description, so match exactly.
+    expect(await screen.findByText('Available commands', { exact: true })).toBeInTheDocument();
+  });
+
+  it('tapping a command chip runs that command', async () => {
+    render(<Terminal onExit={vi.fn()} />);
+    // Chips are mobile-only (display:none above 640px), so query them as
+    // hidden and use fireEvent — the CSS visibility doesn't matter to pickChip.
+    const chip = screen.getByRole('button', { name: 'help', hidden: true });
+    fireEvent.click(chip);
     expect(await screen.findByText('Available commands', { exact: true })).toBeInTheDocument();
   });
 
