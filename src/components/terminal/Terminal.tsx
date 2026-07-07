@@ -44,9 +44,11 @@ export function Terminal({ onExit }: { onExit: () => void }) {
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       term.historyDown();
-    } else if (e.key === 'Tab') {
+    } else if (e.key === 'Tab' && !e.shiftKey) {
       e.preventDefault();
       term.complete();
+      // Shift+Tab is left alone so keyboard users can move focus out of the
+      // input (the dialog's trap keeps it cycling within the terminal).
     } else if (e.key === 'Escape') {
       e.preventDefault();
       onExit();

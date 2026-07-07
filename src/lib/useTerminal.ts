@@ -30,10 +30,37 @@ function longestCommonPrefix(strings: string[]): string {
   return prefix;
 }
 
+const HISTORY_KEY = 'portfolio-terminal-history';
+const HISTORY_MAX = 50;
+
+function loadHistory(): string[] {
+  try {
+    const raw = sessionStorage.getItem(HISTORY_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((h) => typeof h === 'string') : [];
+  } catch {
+    return []; // private mode / quota / corrupt JSON — start fresh
+  }
+}
+
+function saveHistory(history: string[]) {
+  try {
+    sessionStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(-HISTORY_MAX)));
+  } catch {
+    // best-effort only
+  }
+}
+
 export function useTerminal(opts: { onExit: () => void }): UseTerminal {
   const [entries, setEntries] = useState<ScrollbackEntry[]>([]);
   const [input, setInput] = useState('');
+  // history survives closing/reopening the terminal within the tab session
   const historyRef = useRef<string[]>([]);
+  const historyLoadedRef = useRef(false);
+  if (!historyLoadedRef.current) {
+    historyLoadedRef.current = true;
+    historyRef.current = loadHistory();
+  }
   const historyIndexRef = useRef<number>(-1); // -1 = editing fresh input
   const idRef = useRef(0);
 
@@ -44,7 +71,10 @@ export function useTerminal(opts: { onExit: () => void }): UseTerminal {
   const run = useCallback(
     (line: string) => {
       const trimmed = line.trim();
-      if (trimmed) historyRef.current.push(trimmed);
+      if (trimmed) {
+        historyRef.current.push(trimmed);
+        saveHistory(historyRef.current);
+      }
       historyIndexRef.current = -1;
 
       const output = runCommand(line, {

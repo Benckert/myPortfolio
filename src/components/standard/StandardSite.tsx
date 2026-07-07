@@ -13,7 +13,14 @@ import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import ClickSpark from '../reactbits/ClickSpark';
 import './standard.css';
 
-export function StandardSite({ onOpenTerminal }: { onOpenTerminal: () => void }) {
+export function StandardSite({
+  onOpenTerminal,
+  terminalOpen = false,
+}: {
+  onOpenTerminal: () => void;
+  /** True while the terminal overlay covers the site — pauses the WebGL background. */
+  terminalOpen?: boolean;
+}) {
   const reduced = usePrefersReducedMotion();
   const site = (
     <>
@@ -35,7 +42,7 @@ export function StandardSite({ onOpenTerminal }: { onOpenTerminal: () => void })
 
   return (
     <>
-      <LiquidBackground />
+      <LiquidBackground paused={terminalOpen} />
       {reduced ? (
         site
       ) : (
