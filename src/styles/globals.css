@@ -6,6 +6,17 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+/* Self-hosted fonts (was Google Fonts) — no render-blocking third-party
+   request, works offline, and Vite fingerprints/caches the woff2 files. */
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/inter/800.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/700.css';
+
 /* Tailwind's preflight resets headings to font-weight: inherit (400). The
    hand-written CSS leans on the browser default bold for its section/card/
    contact titles (only .hero__name sets weight explicitly), so restore it. */
