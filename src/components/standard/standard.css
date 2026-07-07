@@ -209,46 +209,6 @@
 .footer__inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; color: var(--muted); font-size: 13px; font-family: var(--font-mono); }
 .footer__term { background: none; border: none; color: var(--accent); cursor: pointer; font-family: var(--font-mono); font-size: 13px; }
 
-/* Clickable portraits — hover zooms/glows, click opens the lightbox. The
-   zoom-in cursor (overriding the generic button pointer) hints at expansion. */
-.portrait-btn {
-  display: block; padding: 0; border: none; background: none;
-  border-radius: 50%; line-height: 0; cursor: pointer;
-}
-/* Lightbox — the expanded portrait shown on click. */
-.lightbox {
-  position: fixed; inset: 0; z-index: 120;
-  display: flex; align-items: center; justify-content: center;
-  padding: 24px; cursor: pointer;
-}
-/* Dimming layer kept separate so its opacity fade never bleeds onto the image
-   (opacity inherits to children). pointer-events:none lets backdrop clicks fall
-   through to the dialog, which owns the click-to-close handling. */
-.lightbox__backdrop {
-  position: absolute; inset: 0; z-index: 0; pointer-events: none;
-  background: rgba(5, 8, 13, 0.82);
-  backdrop-filter: blur(6px);
-}
-/* Square box + object-fit:cover keeps it a clean circle for any source image,
-   matching the in-page portrait so the shared-layout morph stays circular. The
-   opaque background guards against transparent source images. */
-.lightbox__img {
-  position: relative; z-index: 1;
-  width: min(80vmin, 460px); height: min(80vmin, 460px);
-  object-fit: cover; cursor: default;
-  background: var(--bg-elev);
-  border-radius: 50%; border: 2px solid var(--border);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
-}
-.lightbox__close {
-  position: fixed; top: 18px; right: 22px; z-index: 2;
-  width: 40px; height: 40px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--bg-elev); border: 1px solid var(--border);
-  color: var(--fg); font-size: 18px; line-height: 1;
-}
-.lightbox__close:hover { border-color: var(--accent); color: var(--accent); }
-
 /* Honour reduced-motion: drop the decorative glare and hover transforms. */
 @media (prefers-reduced-motion: reduce) {
   .btn::after { display: none; }
@@ -333,9 +293,6 @@
 /* Hero StarBorder CTA — add a teal glow on hover atop StarBorder's own pill. */
 .hero__starcta { transition: box-shadow 0.2s ease; }
 .hero__starcta:hover { box-shadow: 0 0 24px rgba(94, 234, 212, 0.5); }
-
-/* Hero portrait now hosts a TiltedCard (rounded rect, not a circle). */
-.portrait-btn--tilt { border-radius: 16px; }
 
 /* Hero tech-logo marquee at the slide bottom. */
 .hero__logos { margin-top: 44px; }
