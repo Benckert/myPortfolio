@@ -12,7 +12,7 @@ export default function App() {
   const { mode, open, close } = useMode();
   return (
     <>
-      <StandardSite onOpenTerminal={open} />
+      <StandardSite onOpenTerminal={open} terminalOpen={mode === 'terminal'} />
       {mode === 'terminal' && (
         <Suspense fallback={null}>
           <Terminal onExit={close} />

@@ -22,6 +22,8 @@ export interface LiquidEtherProps {
   takeoverDuration?: number;
   autoResumeDelay?: number;
   autoRampDuration?: number;
+  /** Externally pause the render loop (e.g. while an opaque overlay covers it). */
+  paused?: boolean;
 }
 
 export default function LiquidEther({
@@ -43,7 +45,8 @@ export default function LiquidEther({
   autoIntensity = 2.2,
   takeoverDuration = 0.25,
   autoResumeDelay = 1000,
-  autoRampDuration = 0.6
+  autoRampDuration = 0.6,
+  paused = false
 }: LiquidEtherProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const webglRef = useRef<any>(null);
@@ -51,6 +54,7 @@ export default function LiquidEther({
   const rafRef = useRef<number | null>(null);
   const intersectionObserverRef = useRef<IntersectionObserver | null>(null);
   const isVisibleRef = useRef(true);
+  const pausedRef = useRef(paused);
   const resizeRafRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -1066,7 +1070,7 @@ export default function LiquidEther({
           const hidden = document.hidden;
           if (hidden) {
             this.pause();
-          } else if (isVisibleRef.current) {
+          } else if (isVisibleRef.current && !pausedRef.current) {
             this.start();
           }
         };
@@ -1159,7 +1163,7 @@ export default function LiquidEther({
     };
     applyOptionsFromProps();
 
-    webgl.start();
+    if (!pausedRef.current) webgl.start();
 
     // IntersectionObserver to pause rendering when not visible
     const io = new IntersectionObserver(
@@ -1168,7 +1172,7 @@ export default function LiquidEther({
         const isVisible = entry.isIntersecting && entry.intersectionRatio > 0;
         isVisibleRef.current = isVisible;
         if (!webglRef.current) return;
-        if (isVisible && !document.hidden) {
+        if (isVisible && !document.hidden && !pausedRef.current) {
           webglRef.current.start();
         } else {
           webglRef.current.pause();
@@ -1230,6 +1234,18 @@ export default function LiquidEther({
     autoResumeDelay,
     autoRampDuration
   ]);
+
+  // External pause/resume — resume only if the canvas is on-screen and the tab visible.
+  useEffect(() => {
+    pausedRef.current = paused;
+    const webgl = webglRef.current;
+    if (!webgl) return;
+    if (paused) {
+      webgl.pause();
+    } else if (isVisibleRef.current && !document.hidden) {
+      webgl.start();
+    }
+  }, [paused]);
 
   useEffect(() => {
     const webgl = webglRef.current;
