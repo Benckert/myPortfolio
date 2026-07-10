@@ -81,7 +81,7 @@
 .hero__eyebrow { color: var(--accent); font-family: var(--font-mono); margin: 0 0 12px; }
 .hero__name { font-size: clamp(40px, 8vw, 76px); line-height: 1.05; margin: 0; font-weight: 800; }
 .hero__tagline { font-size: clamp(18px, 3vw, 26px); color: var(--muted); max-width: 640px; margin: 18px 0 28px; }
-.hero__cta { display: flex; gap: 14px; flex-wrap: wrap; }
+.hero__cta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .hero__hint {
   margin-top: 36px; background: none; border: none; cursor: pointer;
   color: var(--muted); font-family: var(--font-mono); font-size: 13px;

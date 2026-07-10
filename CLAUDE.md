@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev          # Vite dev server (serves index.html; lab at /lab.html)
+npm run dev          # Vite dev server
 npm run build        # tsc -b (type-check) then vite build → dist/
 npm test             # vitest run (one-shot, used for CI/verification)
 npm run test:watch   # vitest in watch mode
@@ -39,6 +39,7 @@ Three architectural ideas tie the codebase together:
 
 - `src/components/standard/` — the marketing site: `StandardSite` composes `Nav → Hero → About → Projects → Experience → Skills → Contact → Footer` plus `BackToTop`. Section order is asserted by `site-order.test.tsx`.
 - `src/components/terminal/` — `Terminal`, `TerminalOutput` (renders typed `OutputLine[]`), `CommandChips`.
+- `src/components/reactbits/` — vendored effect components used by the site (ClickSpark, LiquidEther, LogoLoop, StarBorder, TiltedCard).
 - `src/components/ui/` — shadcn/ui primitives (generated; e.g. `button.tsx`). Tailwind-classed, themed via the `--color-*` bridge above.
 - `src/lib/` — non-React logic: `commands`, `vfs`, `suggest`, `useTerminal`, `useMode`, `motion`, `types`, `utils` (`cn`).
 
@@ -46,15 +47,6 @@ Three architectural ideas tie the codebase together:
 
 Animations use Framer Motion with shared variants in `src/lib/motion.ts` (`fadeUp`, `staggerContainer`, `revealViewport`). Respect `usePrefersReducedMotion` — reduced-motion users must get a static experience. Accessibility is tested (`a11y.test.tsx`), so preserve focus management (terminal restores focus on exit), the skip-link, and ARIA labels.
 
-### Dev-only Interaction Lab
-
-`src/lab/` is a data-driven specimen bench for choosing hover/animation effects, served at `/lab.html` during `npm run dev`. It is **not** part of the production build (`vite build` only bundles `index.html`) and lives on the `explore/ui-lab-v2` branch.
-
-- **`effects.ts`** is the pure-data catalog: a typed `categories` array of families (A–I) of `Variant` specimens. Each variant declares its `source` (`'reactbits' | 'shadcn' | 'bespoke'`), and for library specimens a `component` (registry key), `install` command, and `siteTarget`. No JSX lives here.
-- **`registry.tsx`** maps each `component` string to a real React component and exports `lazyKeys` — the WebGL (ogl) components loaded via `React.lazy`. **three.js is excluded project-wide** (`@react-three/fiber`'s global JSX augmentation collapses React 19 intrinsics to `never` under `tsc -b`, even behind `lazy`); use `ogl` for WebGL.
-- **`Lab.tsx`** is the surface: a sticky rail (family index + view controls), a sticky source-filter toolbar, and a canvas of "vitrine" specimen cards with source pills. `behaviors.ts` now holds only the cursor-follower modes.
-- Library specimens are **copied into the repo**: reactbits sources in `src/components/reactbits/` (fetched via the reactbits MCP, `ts-tailwind` variant), shadcn primitives in `src/components/ui/`. Families A/B/D/F/G/H/I are library-backed; **C (chips) and E (links) stay bespoke** CSS in `lab.css`.
-- Note: the production `globals.css` carries some extra Tailwind utility classes scanned from the dev-only lab/reactbits sources (dev and prod share one Tailwind build) — an accepted minor overhead since the lab JS never ships.
 
 ## Testing conventions
 
@@ -65,7 +57,7 @@ Vitest + Testing Library in a jsdom environment (`vite.config.ts`, `globals: tru
 Tailwind v4 + shadcn were adopted on top of the existing hand-written CSS; the two **coexist** (see Architecture point 3). **`Skills` (`src/components/standard/Skills.tsx`) is migrated** as the reference example; the other `standard/` + `terminal/` components still use their co-located `.css` files. Intended direction:
 
 - **New UI** → Tailwind utilities + shadcn primitives.
-- **Existing components** → migrate **incrementally**, only when you're already editing one (strangler pattern). A big-bang rewrite of `standard.css`/`terminal.css`/`lab.css` is deliberately deferred — those files use fluid `clamp()` typography, scroll-snap paging math, and keyframes that Tailwind expresses awkwardly, and a full rewrite is high-risk for a working, tested site with little functional payoff. Keep the design-token bridge as the shared source of truth.
+- **Existing components** → migrate **incrementally**, only when you're already editing one (strangler pattern). A big-bang rewrite of `standard.css`/`terminal.css` is deliberately deferred — those files use fluid `clamp()` typography, scroll-snap paging math, and keyframes that Tailwind expresses awkwardly, and a full rewrite is high-risk for a working, tested site with little functional payoff. Keep the design-token bridge as the shared source of truth.
 
 **When migrating a component, follow [`docs/tailwind-migration.md`](docs/tailwind-migration.md)** — it has the token→utility table, the patterns (fluid type, per-instance `--c` colour, Framer coexistence, `motion-reduce:`), and gotchas (preflight de-bolds headings; decouple tests from styling classes), using `Skills` as the worked example.
 
