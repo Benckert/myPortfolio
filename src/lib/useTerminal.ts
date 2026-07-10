@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { content } from '../data/content';
+import { contents } from '../data/content';
+import { getLang } from './useLang';
 import type { OutputLine } from './types';
 import { runCommand, commandNames, argCandidates } from './commands';
 
@@ -107,7 +108,7 @@ export function useTerminal(opts: { onExit: () => void }): UseTerminal {
       historyIndexRef.current = -1;
 
       const output = runCommand(line, {
-        content,
+        content: contents[getLang()],
         history: [...historyRef.current],
         actions: {
           clear: () => setEntries([]),
@@ -166,7 +167,7 @@ export function useTerminal(opts: { onExit: () => void }): UseTerminal {
     // completing an argument
     const cmd = parts[0].toLowerCase();
     const argPrefix = parts[parts.length - 1];
-    const candidates = argCandidates(cmd, content).filter((c) => c.startsWith(argPrefix));
+    const candidates = argCandidates(cmd, contents[getLang()]).filter((c) => c.startsWith(argPrefix));
     if (candidates.length === 1) {
       parts[parts.length - 1] = candidates[0];
       setInput(parts.join(' '));

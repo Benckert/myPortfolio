@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion';
-import { content } from '../../data/content';
+import { contents, ui } from '../../data/content';
+import { useLang } from '../../lib/useLang';
 import { fadeUp, revealViewport } from '../../lib/motion';
 import { Portrait } from './Portrait';
 
 export function About() {
-  const { bio, location, name, portraitUrl } = content.profile;
+  const lang = useLang();
+  const { bio, location, name, portraitUrl } = contents[lang].profile;
   return (
     <section id="about" className="section">
       <div className="container">
@@ -15,7 +17,7 @@ export function About() {
           whileInView="show"
           viewport={revealViewport}
         >
-          <span>01.</span> About
+          <span>01.</span> {ui[lang].nav.about}
         </motion.h2>
         <div className="about__layout">
           <div className="about__content">

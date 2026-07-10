@@ -10,6 +10,8 @@ import { BackToTop } from './BackToTop';
 import { SlidePager } from './SlidePager';
 import { LiquidBackground } from './LiquidBackground';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
+import { ui } from '../../data/content';
+import { useLang } from '../../lib/useLang';
 import ClickSpark from '../reactbits/ClickSpark';
 import './standard.css';
 
@@ -22,9 +24,10 @@ export function StandardSite({
   terminalOpen?: boolean;
 }) {
   const reduced = usePrefersReducedMotion();
+  const lang = useLang();
   const site = (
     <>
-      <a className="skip-link" href="#home">Skip to content</a>
+      <a className="skip-link" href="#home">{ui[lang].skipLink}</a>
       <Nav onOpenTerminal={onOpenTerminal} />
       <main>
         <Hero onOpenTerminal={onOpenTerminal} />
