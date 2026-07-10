@@ -53,7 +53,7 @@ export interface Content {
 // ─────────────────────────────────────────────────────────────
 export const content: Content = {
   profile: {
-    name: 'Your Name',
+    name: 'Kristoffer Benckert',
     tagline: 'Front-end developer building accessible, animated web experiences',
     bio: "Recently qualified web developer focused on the front end. I learn by building — most of what I know comes from shipping personal projects end to end, from design to deploy. I care about clean, accessible UI and the small details that make an interface feel good.",
     location: 'Your City, Country',
