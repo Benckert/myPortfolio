@@ -1,6 +1,7 @@
 import { lazy, Suspense, useMemo } from 'react';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { cssVar } from '../../lib/cssVar';
+import { ErrorBoundary } from '../shared/ErrorBoundary';
 
 const LiquidEther = lazy(() => import('../reactbits/LiquidEther'));
 
@@ -19,16 +20,19 @@ export function LiquidBackground({ paused = false }: { paused?: boolean }) {
   if (reduced) return null;
   return (
     <div className="liquid-bg" aria-hidden="true" data-testid="liquid-bg">
-      <Suspense fallback={null}>
-        <LiquidEther
-          colors={colors}
-          resolution={0.4}
-          autoIntensity={1.6}
-          autoSpeed={0.4}
-          paused={paused}
-          style={{ width: '100%', height: '100%' }}
-        />
-      </Suspense>
+      {/* decorative only — if the WebGL chunk fails to load, show nothing */}
+      <ErrorBoundary>
+        <Suspense fallback={null}>
+          <LiquidEther
+            colors={colors}
+            resolution={0.4}
+            autoIntensity={1.6}
+            autoSpeed={0.4}
+            paused={paused}
+            style={{ width: '100%', height: '100%' }}
+          />
+        </Suspense>
+      </ErrorBoundary>
     </div>
   );
 }

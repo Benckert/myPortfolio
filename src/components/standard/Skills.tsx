@@ -1,26 +1,28 @@
 import type { CSSProperties } from 'react';
 import { motion } from 'framer-motion';
-import { content } from '../../data/content';
+import { contents, ui } from '../../data/content';
+import { useLang } from '../../lib/useLang';
 import { fadeUp, staggerContainer, revealViewport } from '../../lib/motion';
 
 // Per-group accent token, driven by data rather than the old :nth-child rules so
 // the colour travels with the group. Exposed to CSS as `--c` on the card and
 // consumed by Tailwind arbitrary-value utilities (text-[var(--c)],
 // [border-top-color:var(--c)]) — the canonical way to do per-instance theming.
-const GROUPS: { key: 'languages' | 'frameworks' | 'tools'; label: string; accent: string }[] = [
-  { key: 'languages', label: 'Languages', accent: 'var(--accent)' },
-  { key: 'frameworks', label: 'Frameworks', accent: 'var(--accent-2)' },
-  { key: 'tools', label: 'Tools', accent: 'var(--success)' },
+const GROUPS: { key: 'languages' | 'frameworks' | 'tools'; accent: string }[] = [
+  { key: 'languages', accent: 'var(--accent)' },
+  { key: 'frameworks', accent: 'var(--accent-2)' },
+  { key: 'tools', accent: 'var(--success)' },
 ];
 
 export function Skills() {
+  const lang = useLang();
   return (
     // section scaffold: .section (96px block padding) + .container (centred max-w)
     <section id="skills" className="py-24">
       <div className="mx-auto w-full max-w-[var(--maxw)] px-6">
         {/* fluid title; the mono accent number uses the brand teal (text-primary) */}
         <h2 className="mb-2 text-[clamp(26px,5vw,40px)]">
-          <span className="font-mono text-[0.6em] text-primary">04.</span> Skills
+          <span className="font-mono text-[0.6em] text-primary">04.</span> {ui[lang].nav.skills}
         </h2>
 
         <div className="grid grid-cols-3 gap-5 max-[720px]:grid-cols-1">
@@ -35,10 +37,10 @@ export function Skills() {
               viewport={revealViewport}
             >
               <h3 className="mb-3.5 border-b border-border pb-2.5 font-mono text-sm text-[var(--c)]">
-                {g.label}
+                {ui[lang].sections.skillsGroups[g.key]}
               </h3>
               <ul className="m-0 flex list-none flex-wrap gap-2.5 p-0">
-                {content.skills[g.key].map((s) => (
+                {contents[lang].skills[g.key].map((s) => (
                   <motion.li
                     key={s}
                     variants={fadeUp}

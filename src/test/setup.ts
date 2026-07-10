@@ -1,4 +1,12 @@
 import '@testing-library/jest-dom';
+import { beforeEach } from 'vitest';
+
+// Web storage persists across tests within a file (the terminal persists
+// history + scrollback to sessionStorage); reset it so tests stay isolated.
+beforeEach(() => {
+  sessionStorage.clear();
+  localStorage.clear();
+});
 
 // jsdom does not implement matchMedia. Provide a default stub (motion allowed)
 // so components that read prefers-reduced-motion render in tests. Individual

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { content } from '../../data/content';
+import { contents, ui } from '../../data/content';
+import { useLang } from '../../lib/useLang';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { cssVar } from '../../lib/cssVar';
 import { Portrait } from './Portrait';
@@ -14,7 +15,9 @@ const IS_MAC =
 
 export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
   const reduced = usePrefersReducedMotion();
-  const { name, tagline, portraitUrl } = content.profile;
+  const lang = useLang();
+  const u = ui[lang];
+  const { name, tagline, portraitUrl } = contents[lang].profile;
 
   return (
     <section id="home" className="hero">
@@ -26,7 +29,7 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            Hi, my name is
+            {u.hero.eyebrow}
           </motion.p>
           <h1 className="hero__name" aria-label={name}>
             <Typewriter text={name} />
@@ -41,15 +44,15 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
           </motion.p>
           <div className="hero__cta">
             <Spotlight>
-              <a className="btn btn--primary" href="#projects">View my work</a>
+              <a className="btn btn--primary" href="#projects">{u.hero.viewWork}</a>
             </Spotlight>
             <StarBorder as="a" href="#contact" color={cssVar('--accent', '#5eead4')} speed="5s" className="hero__starcta">
-              Get in touch
+              {u.hero.getInTouch}
             </StarBorder>
           </div>
           <button type="button" className="hero__hint" onClick={onOpenTerminal}>
-            psst — press <kbd className="hero__hint-key">{IS_MAC ? '⌘' : 'Ctrl'}</kbd>{' '}
-            <kbd className="hero__hint-key">K</kbd> for terminal mode
+            {u.hero.hintPre} <kbd className="hero__hint-key">{IS_MAC ? '⌘' : 'Ctrl'}</kbd>{' '}
+            <kbd className="hero__hint-key">K</kbd> {u.hero.hintPost}
           </button>
         </div>
         {portraitUrl && (
@@ -71,7 +74,7 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
           logoHeight={28}
           fadeOut
           fadeOutColor={cssVar('--bg', '#0b0f17')}
-          ariaLabel="Technologies I work with"
+          ariaLabel={u.hero.logosLabel}
         />
       </div>
     </section>

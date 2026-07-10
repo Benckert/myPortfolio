@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { content } from '../../data/content';
+import { contents, ui } from '../../data/content';
+import { useLang } from '../../lib/useLang';
 import { fadeUp, revealViewport } from '../../lib/motion';
 
 interface TimelineItem {
@@ -47,13 +48,16 @@ function Timeline({
 }
 
 export function Experience() {
-  const work: TimelineItem[] = content.experience.map((e) => ({
+  const lang = useLang();
+  const c = contents[lang];
+  const u = ui[lang];
+  const work: TimelineItem[] = c.experience.map((e) => ({
     title: e.role,
     org: e.org,
     period: e.period,
     points: e.points,
   }));
-  const education: TimelineItem[] = content.education.map((e) => ({
+  const education: TimelineItem[] = c.education.map((e) => ({
     title: e.credential,
     org: e.org,
     period: e.period,
@@ -63,10 +67,10 @@ export function Experience() {
   return (
     <section id="experience" className="section">
       <div className="container">
-        <h2 className="section__title"><span>03.</span> Experience</h2>
+        <h2 className="section__title"><span>03.</span> {u.nav.experience}</h2>
         <div className="exp-grid">
-          <Timeline label="Work" items={work} />
-          <Timeline label="Education" items={education} edu />
+          <Timeline label={u.sections.work} items={work} />
+          <Timeline label={u.sections.education} items={education} edu />
         </div>
       </div>
     </section>

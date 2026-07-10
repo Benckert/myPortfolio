@@ -1,5 +1,6 @@
-import { useCallback, useRef, useState } from 'react';
-import { content } from '../data/content';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { contents } from '../data/content';
+import { getLang } from './useLang';
 import type { OutputLine } from './types';
 import { runCommand, commandNames, argCandidates } from './commands';
 
@@ -32,6 +33,26 @@ function longestCommonPrefix(strings: string[]): string {
 
 const HISTORY_KEY = 'portfolio-terminal-history';
 const HISTORY_MAX = 50;
+const SCROLLBACK_KEY = 'portfolio-terminal-scrollback';
+const SCROLLBACK_MAX = 100;
+
+function loadScrollback(): ScrollbackEntry[] {
+  try {
+    const raw = sessionStorage.getItem(SCROLLBACK_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveScrollback(entries: ScrollbackEntry[]) {
+  try {
+    sessionStorage.setItem(SCROLLBACK_KEY, JSON.stringify(entries.slice(-SCROLLBACK_MAX)));
+  } catch {
+    // best-effort only
+  }
+}
 
 function loadHistory(): string[] {
   try {
@@ -52,7 +73,8 @@ function saveHistory(history: string[]) {
 }
 
 export function useTerminal(opts: { onExit: () => void }): UseTerminal {
-  const [entries, setEntries] = useState<ScrollbackEntry[]>([]);
+  // scrollback survives closing/reopening the terminal within the tab session
+  const [entries, setEntries] = useState<ScrollbackEntry[]>(loadScrollback);
   const [input, setInput] = useState('');
   // history survives closing/reopening the terminal within the tab session
   const historyRef = useRef<string[]>([]);
@@ -62,7 +84,15 @@ export function useTerminal(opts: { onExit: () => void }): UseTerminal {
     historyRef.current = loadHistory();
   }
   const historyIndexRef = useRef<number>(-1); // -1 = editing fresh input
-  const idRef = useRef(0);
+  // continue ids after any restored scrollback so React keys stay unique
+  const idRef = useRef(-1);
+  if (idRef.current === -1) {
+    idRef.current = entries.reduce((max, e) => Math.max(max, e.id), -1) + 1;
+  }
+
+  useEffect(() => {
+    saveScrollback(entries);
+  }, [entries]);
 
   const append = useCallback((entryInput: string | null, output: OutputLine[]) => {
     setEntries((prev) => [...prev, { id: idRef.current++, input: entryInput, output }]);
@@ -78,7 +108,7 @@ export function useTerminal(opts: { onExit: () => void }): UseTerminal {
       historyIndexRef.current = -1;
 
       const output = runCommand(line, {
-        content,
+        content: contents[getLang()],
         history: [...historyRef.current],
         actions: {
           clear: () => setEntries([]),
@@ -137,7 +167,7 @@ export function useTerminal(opts: { onExit: () => void }): UseTerminal {
     // completing an argument
     const cmd = parts[0].toLowerCase();
     const argPrefix = parts[parts.length - 1];
-    const candidates = argCandidates(cmd, content).filter((c) => c.startsWith(argPrefix));
+    const candidates = argCandidates(cmd, contents[getLang()]).filter((c) => c.startsWith(argPrefix));
     if (candidates.length === 1) {
       parts[parts.length - 1] = candidates[0];
       setInput(parts.join(' '));
