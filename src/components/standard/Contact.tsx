@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { contents, ui } from '../../data/content';
+import { Spotlight } from './Spotlight';
 import { useLang } from '../../lib/useLang';
 import { fadeUp, revealViewport } from '../../lib/motion';
 
@@ -14,7 +15,7 @@ export function Contact() {
           <p className="contact__eyebrow">{u.contact.eyebrow}</p>
           <h2 className="contact__title">{u.contact.title}</h2>
           <p className="contact__lead">{u.contact.lead}</p>
-          <a className="btn btn--primary" href={`mailto:${email}`}>{email}</a>
+          <Spotlight><a className="btn btn--primary" href={`mailto:${email}`}>{email}</a></Spotlight>
           <div className="contact__socials">
             {github && <a href={github} target="_blank" rel="noopener noreferrer">GitHub</a>}
             {linkedin && <a href={linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>}

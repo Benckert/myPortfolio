@@ -46,9 +46,11 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
             <Spotlight>
               <a className="btn btn--primary" href="#projects">{u.hero.viewWork}</a>
             </Spotlight>
-            <StarBorder as="a" href="#contact" color={cssVar('--accent', '#5eead4')} speed="5s" className="hero__starcta">
-              {u.hero.getInTouch}
-            </StarBorder>
+            <Spotlight className="spotlight--border">
+              <StarBorder as="a" href="#contact" color={cssVar('--accent', '#5eead4')} speed="5s" className="hero__starcta">
+                {u.hero.getInTouch}
+              </StarBorder>
+            </Spotlight>
           </div>
           <button type="button" className="hero__hint" onClick={onOpenTerminal}>
             {u.hero.hintPre} <kbd className="hero__hint-key">{IS_MAC ? '⌘' : 'Ctrl'}</kbd>{' '}
