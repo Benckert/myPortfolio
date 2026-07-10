@@ -12,15 +12,6 @@
 .btn:hover { transform: translateY(-2px); text-decoration: none; }
 .btn--primary { background: var(--accent); color: #06231f; }
 .btn--ghost { border: 1px solid var(--border); color: var(--fg); }
-/* Glare: a diagonal highlight sweeps across the button on hover. */
-.btn::after {
-  content: ''; position: absolute; top: 0; left: -120%;
-  width: 60%; height: 100%; pointer-events: none;
-  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-  transform: skewX(-20deg);
-  transition: left 0.55s ease;
-}
-.btn:hover::after { left: 140%; }
 
 /* Spotlight — cursor-follow radial highlight over a control. */
 .spotlight { position: relative; display: inline-block; border-radius: 12px; }
@@ -32,13 +23,30 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.2s ease;
+  /* white highlight (inherited from the removed glare sweep) — visible on
+     the solid teal primary button where a teal glow would vanish */
   background: radial-gradient(
     120px circle at var(--mx, 50%) var(--my, 50%),
-    rgba(94, 234, 212, 0.35),
+    rgba(255, 255, 255, 0.45),
     transparent 60%
   );
 }
 .spotlight:hover::before { opacity: 1; }
+
+/* Border-glow variant: the highlight is masked to a 2px ring, so only the
+   border near the cursor lights up. Used on the StarBorder CTA — its glint
+   layers fade out while hovered so the two effects don't stack. */
+.spotlight--border { border-radius: 20px; }
+.spotlight--border::before {
+  padding: 2px;
+  background: radial-gradient(110px circle at var(--mx, 50%) var(--my, 50%), var(--accent), transparent 72%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.spotlight--border [class*='animate-star-movement'] { transition: opacity 0.25s ease; }
+.spotlight--border:hover [class*='animate-star-movement'] { opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
   .spotlight::before { display: none; }
 }
@@ -213,10 +221,6 @@
 .footer__inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; color: var(--muted); font-size: 13px; font-family: var(--font-mono); }
 .footer__term { background: none; border: none; color: var(--accent); cursor: pointer; font-family: var(--font-mono); font-size: 13px; }
 
-/* Honour reduced-motion: drop the decorative glare and hover transforms. */
-@media (prefers-reduced-motion: reduce) {
-  .btn::after { display: none; }
-}
 
 /* Faint fixed WebGL background — sits behind all transparent snap-sections. */
 .liquid-bg {
@@ -270,6 +274,13 @@
 @media (prefers-reduced-motion: reduce) {
   .slide-pager__btn { transition: none; }
 }
+
+/* Typewriter — the invisible sizer reserves the full name's final layout
+   (including line wraps) from the first frame, so the hero doesn't jump from
+   one line to two mid-animation; the typed text paints on top. */
+.typewriter { position: relative; display: inline-block; }
+.typewriter__sizer { visibility: hidden; }
+.typewriter__live { position: absolute; inset: 0; }
 
 /* Typewriter caret */
 .typewriter__caret {

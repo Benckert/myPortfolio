@@ -35,9 +35,13 @@ export function Typewriter({ text, speed = 70, startDelay = 300, className }: Ty
 
   const done = count >= text.length;
   return (
-    <span className={className} aria-hidden="true">
-      {text.slice(0, count)}
-      <span className={`typewriter__caret${done ? ' typewriter__caret--rest' : ''}`} />
+    <span className={`typewriter${className ? ` ${className}` : ''}`} aria-hidden="true">
+      {/* invisible full text reserves the final size so typing never reflows */}
+      <span className="typewriter__sizer">{text}</span>
+      <span className="typewriter__live">
+        {text.slice(0, count)}
+        <span className={`typewriter__caret${done ? ' typewriter__caret--rest' : ''}`} />
+      </span>
     </span>
   );
 }
