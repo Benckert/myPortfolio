@@ -19,6 +19,18 @@ there — both the standard site and the terminal update automatically.
 Add your resume by placing `resume.pdf` in `public/` (matches the default
 `resumeUrl`).
 
+**TODO — resume:** drop `resume.pdf` into `public/` (serves at `/resume.pdf`,
+which `resumeUrl` already points to).
+
+**TODO — contact form:** the contact section is `mailto:`-only, which fails
+silently without a configured mail client. Candidates: [Web3Forms](https://web3forms.com)
+or [Formspree](https://formspree.io) (both have free tiers, ~10 lines of HTML,
+no backend).
+
+**TODO — analytics (post-deploy):** [GoatCounter](https://www.goatcounter.com)
+is free, cookie-less (no GDPR banner), one `<script>` tag. Add once the site
+is deployed.
+
 **TODO — portrait photo:** `portraitUrl` still points at the `/portrait.svg`
 placeholder. Use a **square** photo, at least **640×640** (it renders at 320px
 on 2× displays), as **JPEG or WebP** under ~200 kB. Drop it in `public/` and

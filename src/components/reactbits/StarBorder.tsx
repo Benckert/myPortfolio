@@ -43,7 +43,9 @@ const StarBorder = <T extends React.ElementType = 'button'>({
           animationDuration: speed
         }}
       ></div>
-      <div className="relative z-1 bg-gradient-to-b from-black to-gray-900 border border-gray-800 text-white text-center text-[16px] py-[16px] px-[26px] rounded-[20px]">
+      {/* Inner pill uses site tokens and matches .btn metrics (12px/20px padding,
+          600 weight) so it lines up with the primary CTA beside it. */}
+      <div className="relative z-1 bg-gradient-to-b from-[var(--bg-elev)] to-[var(--bg)] border border-[var(--border)] text-[var(--fg)] text-center font-semibold py-[12px] px-[20px] rounded-[20px]">
         {children}
       </div>
     </Component>

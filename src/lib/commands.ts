@@ -1,6 +1,7 @@
 import type { Command, CommandContext, OutputLine } from './types';
 import { suggestCommand } from './suggest';
 import { listFiles, readFile, ROOT_ENTRIES } from './vfs';
+import { getLang, setLang } from './useLang';
 
 export const registry: Record<string, Command> = {};
 
@@ -190,6 +191,135 @@ register({
   },
 });
 
+// ── Easter eggs ──────────────────────────────────────────────
+// Marked "· easter egg" in help TEMPORARILY so they're discoverable while
+// being evaluated; drop the suffix (or the command) once the keepers are chosen.
+
+const THEMES: Record<string, string> = {
+  teal: '#5eead4',
+  amber: '#fbbf24',
+  violet: '#a78bfa',
+  green: '#4ade80',
+  rose: '#fb7185',
+};
+
+register({
+  name: 'theme',
+  description: 'Swap the accent color · easter egg',
+  handler: (args) => {
+    const pick = args[0]?.toLowerCase();
+    if (!pick || (!THEMES[pick] && pick !== 'reset')) {
+      return [
+        { type: 'text', text: `usage: theme <${Object.keys(THEMES).join('|')}|reset>` },
+      ];
+    }
+    const root = document.documentElement;
+    if (pick === 'reset') {
+      root.style.removeProperty('--accent');
+      return [{ type: 'success', text: 'accent restored to default.' }];
+    }
+    root.style.setProperty('--accent', THEMES[pick]);
+    return [{ type: 'success', text: `accent → ${pick}. (theme reset to undo)` }];
+  },
+});
+
+register({
+  name: 'neofetch',
+  description: 'System info, sort of · easter egg',
+  handler: (_a, ctx) => {
+    const { profile, skills, socials } = ctx.content;
+    const left = [
+      ' ██╗  ██╗██████╗ ',
+      ' ██║ ██╔╝██╔══██╗',
+      ' █████╔╝ ██████╔╝',
+      ' ██╔═██╗ ██╔══██╗',
+      ' ██║  ██╗██████╔╝',
+      ' ╚═╝  ╚═╝╚═════╝ ',
+    ];
+    const right = [
+      `${profile.name}`,
+      '─'.repeat(profile.name.length),
+      `role:     front-end developer`,
+      `stack:    ${skills.frameworks.slice(0, 3).join(', ')}`,
+      `editor:   vim (trapped since 2023)`,
+      `contact:  ${socials.email}`,
+    ];
+    return left.map((l, i) => ({
+      type: (i === 0 ? 'heading' : 'text') as 'heading' | 'text',
+      text: `${l}  ${right[i] ?? ''}`,
+    }));
+  },
+});
+
+register({
+  name: 'cowsay',
+  description: 'The cow speaks · easter egg',
+  handler: (args) => {
+    const msg = args.length ? args.join(' ') : 'moo';
+    const border = '─'.repeat(msg.length + 2);
+    return [
+      { type: 'text', text: ` ╭${border}╮` },
+      { type: 'text', text: ` │ ${msg} │` },
+      { type: 'text', text: ` ╰${border}╯` },
+      { type: 'text', text: '    \\   ^__^' },
+      { type: 'text', text: '     \\  (oo)\\_______' },
+      { type: 'text', text: '        (__)\\       )\\/\\' },
+      { type: 'text', text: '            ||----w |' },
+      { type: 'text', text: '            ||     ||' },
+    ];
+  },
+});
+
+register({
+  name: 'matrix',
+  description: 'Follow the white rabbit · easter egg',
+  handler: () => {
+    const glyphs = 'ｱｲｳｴｵｶｷｸｹｺﾊﾋﾌﾍﾎ0123456789';
+    const line = () =>
+      Array.from({ length: 46 }, () => glyphs[Math.floor(Math.random() * glyphs.length)]).join('');
+    return [
+      ...Array.from({ length: 8 }, () => ({ type: 'success' as const, text: line() })),
+      { type: 'text', text: 'wake up, recruiter…' },
+    ];
+  },
+});
+
+register({
+  name: 'rm',
+  description: 'Remove files (careful!) · easter egg',
+  handler: (args) => [
+    {
+      type: 'error',
+      text: args.join(' ').includes('-rf')
+        ? 'rm: refusing to delete my own portfolio. self-preservation instinct intact. 🙂'
+        : 'rm: read-only filesystem. everything here is load-bearing.',
+    },
+  ],
+});
+
+register({
+  name: 'vim',
+  description: 'Open the editor · easter egg',
+  handler: () => [
+    { type: 'text', text: 'entering vim…' },
+    { type: 'text', text: 'you are now stuck. :q! does nothing here.' },
+    { type: 'text', text: '(Escape closes the whole terminal — the only known exit.)' },
+  ],
+});
+
+register({
+  name: 'lang',
+  description: 'Switch site language: lang [en|sv]',
+  handler: (args) => {
+    const arg = args[0]?.toLowerCase();
+    const next = arg === 'en' || arg === 'sv' ? arg : getLang() === 'en' ? 'sv' : 'en';
+    setLang(next);
+    return [
+      { type: 'success', text: next === 'sv' ? 'Webbplatsens språk → svenska.' : 'Site language → English.' },
+    ];
+  },
+});
+
 export const commandNames: string[] = [];
 
 export function runCommand(input: string, ctx: CommandContext): OutputLine[] {
@@ -222,5 +352,7 @@ export function argCandidates(commandName: string, content: import('../data/cont
   }
   if (commandName === 'open') return content.projects.map((p) => p.slug);
   if (commandName === 'ls') return ['projects/'];
+  if (commandName === 'theme') return [...Object.keys(THEMES), 'reset'];
+  if (commandName === 'lang') return ['en', 'sv'];
   return [];
 }
