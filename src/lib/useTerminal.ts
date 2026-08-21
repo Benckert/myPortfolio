@@ -151,10 +151,12 @@ export function useTerminal(opts: { onExit: () => void }): UseTerminal {
   }, []);
 
   const complete = useCallback(() => {
-    const parts = input.split(/\s+/);
+    // Leading whitespace would otherwise make " he" look like an argument.
+    const parts = input.replace(/^\s+/, '').split(/\s+/);
     if (parts.length <= 1) {
-      // completing a command name
-      const prefix = parts[0] ?? '';
+      // Completing a command name. Matched case-insensitively so it agrees
+      // with runCommand, which lowercases before lookup — "HE" ⇒ "help ".
+      const prefix = (parts[0] ?? '').toLowerCase();
       const matches = commandNames.filter((c) => c.startsWith(prefix));
       if (matches.length === 1) setInput(matches[0] + ' ');
       else if (matches.length > 1) {

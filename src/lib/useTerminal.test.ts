@@ -51,6 +51,37 @@ describe('useTerminal', () => {
     expect(result.current.input).toBe('about ');
   });
 
+  it('tab-completes a command name case-insensitively, like runCommand resolves it', () => {
+    const { result } = renderHook(() => useTerminal({ onExit: () => {} }));
+    act(() => result.current.setInput('HE'));
+    act(() => result.current.complete());
+    expect(result.current.input).toBe('help ');
+  });
+
+  it('ignores leading whitespace when completing', () => {
+    const { result } = renderHook(() => useTerminal({ onExit: () => {} }));
+    act(() => result.current.setInput('   neo'));
+    act(() => result.current.complete());
+    expect(result.current.input).toBe('neofetch ');
+  });
+
+  it('tab-completes arguments for every command that declares them', () => {
+    const cases: [string, string][] = [
+      ['ls ', 'ls projects/'],
+      ['open p', 'open project-'],
+      ['cat a', 'cat about.txt'],
+      ['lang e', 'lang en'],
+      ['theme a', 'theme amber'],
+      ['rm ', 'rm -rf /'],
+    ];
+    for (const [input, expected] of cases) {
+      const { result } = renderHook(() => useTerminal({ onExit: () => {} }));
+      act(() => result.current.setInput(input));
+      act(() => result.current.complete());
+      expect(result.current.input, `completing ${JSON.stringify(input)}`).toBe(expected);
+    }
+  });
+
   it('tab-completes a file argument after cat', () => {
     const { result } = renderHook(() => useTerminal({ onExit: vi.fn() }));
     act(() => result.current.setInput('cat ab'));

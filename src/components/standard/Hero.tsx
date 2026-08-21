@@ -6,9 +6,7 @@ import { cssVar } from '../../lib/cssVar';
 import { Portrait } from './Portrait';
 import { Typewriter } from './Typewriter';
 import { Spotlight } from './Spotlight';
-import { techLogos } from './techLogos';
 import StarBorder from '../reactbits/StarBorder';
-import LogoLoop from '../reactbits/LogoLoop';
 
 const IS_MAC =
   typeof navigator !== 'undefined' && /Mac|iPhone|iPad/i.test(navigator.platform || navigator.userAgent);
@@ -68,17 +66,10 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
           </motion.div>
         )}
       </div>
-      <div className="container hero__logos">
-        <LogoLoop
-          logos={techLogos}
-          speed={40}
-          gap={48}
-          logoHeight={28}
-          fadeOut
-          fadeOutColor={cssVar('--bg', '#0b0f17')}
-          ariaLabel={u.hero.logosLabel}
-        />
-      </div>
+      {/* TEMPORARILY DISABLED while investigating perceived slowness: the
+          marquee drives its own uncapped requestAnimationFrame loop for as
+          long as the hero is on screen. Re-enable by restoring this block
+          (techLogos + LogoLoop are still in the repo). */}
     </section>
   );
 }

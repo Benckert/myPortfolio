@@ -192,8 +192,6 @@ register({
 });
 
 // ── Easter eggs ──────────────────────────────────────────────
-// Marked "· easter egg" in help TEMPORARILY so they're discoverable while
-// being evaluated; drop the suffix (or the command) once the keepers are chosen.
 
 const THEMES: Record<string, string> = {
   teal: '#5eead4',
@@ -205,7 +203,7 @@ const THEMES: Record<string, string> = {
 
 register({
   name: 'theme',
-  description: 'Swap the accent color · easter egg',
+  description: 'Recolor the site accent: theme <color|reset>',
   handler: (args) => {
     const pick = args[0]?.toLowerCase();
     if (!pick || (!THEMES[pick] && pick !== 'reset')) {
@@ -216,16 +214,26 @@ register({
     const root = document.documentElement;
     if (pick === 'reset') {
       root.style.removeProperty('--accent');
-      return [{ type: 'success', text: 'accent restored to default.' }];
+      return [
+        { type: 'heading', text: '████████████  default' },
+        { type: 'success', text: 'accent restored.' },
+      ];
     }
     root.style.setProperty('--accent', THEMES[pick]);
-    return [{ type: 'success', text: `accent → ${pick}. (theme reset to undo)` }];
+    // The swatch and headings below are painted with --accent, so the change
+    // shows up here as well as on the site behind the terminal.
+    return [
+      { type: 'heading', text: `████████████  ${pick}` },
+      { type: 'success', text: `accent → ${THEMES[pick]}` },
+      { type: 'text', text: 'recolors headings here, plus buttons, links, section' },
+      { type: 'text', text: 'numbers and timeline dots on the site. `theme reset` to undo.' },
+    ];
   },
 });
 
 register({
   name: 'neofetch',
-  description: 'System info, sort of · easter egg',
+  description: 'System info, sort of',
   handler: (_a, ctx) => {
     const { profile, skills, socials } = ctx.content;
     const left = [
@@ -252,41 +260,8 @@ register({
 });
 
 register({
-  name: 'cowsay',
-  description: 'The cow speaks · easter egg',
-  handler: (args) => {
-    const msg = args.length ? args.join(' ') : 'moo';
-    const border = '─'.repeat(msg.length + 2);
-    return [
-      { type: 'text', text: ` ╭${border}╮` },
-      { type: 'text', text: ` │ ${msg} │` },
-      { type: 'text', text: ` ╰${border}╯` },
-      { type: 'text', text: '    \\   ^__^' },
-      { type: 'text', text: '     \\  (oo)\\_______' },
-      { type: 'text', text: '        (__)\\       )\\/\\' },
-      { type: 'text', text: '            ||----w |' },
-      { type: 'text', text: '            ||     ||' },
-    ];
-  },
-});
-
-register({
-  name: 'matrix',
-  description: 'Follow the white rabbit · easter egg',
-  handler: () => {
-    const glyphs = 'ｱｲｳｴｵｶｷｸｹｺﾊﾋﾌﾍﾎ0123456789';
-    const line = () =>
-      Array.from({ length: 46 }, () => glyphs[Math.floor(Math.random() * glyphs.length)]).join('');
-    return [
-      ...Array.from({ length: 8 }, () => ({ type: 'success' as const, text: line() })),
-      { type: 'text', text: 'wake up, recruiter…' },
-    ];
-  },
-});
-
-register({
   name: 'rm',
-  description: 'Remove files (careful!) · easter egg',
+  description: 'Remove files (careful!)',
   handler: (args) => [
     {
       type: 'error',
@@ -294,16 +269,6 @@ register({
         ? 'rm: refusing to delete my own portfolio. self-preservation instinct intact. 🙂'
         : 'rm: read-only filesystem. everything here is load-bearing.',
     },
-  ],
-});
-
-register({
-  name: 'vim',
-  description: 'Open the editor · easter egg',
-  handler: () => [
-    { type: 'text', text: 'entering vim…' },
-    { type: 'text', text: 'you are now stuck. :q! does nothing here.' },
-    { type: 'text', text: '(Escape closes the whole terminal — the only known exit.)' },
   ],
 });
 
@@ -354,5 +319,6 @@ export function argCandidates(commandName: string, content: import('../data/cont
   if (commandName === 'ls') return ['projects/'];
   if (commandName === 'theme') return [...Object.keys(THEMES), 'reset'];
   if (commandName === 'lang') return ['en', 'sv'];
+  if (commandName === 'rm') return ['-rf /'];
   return [];
 }
