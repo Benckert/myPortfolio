@@ -17,7 +17,7 @@ const Terminal = lazy(() =>
  *  skeleton scanlines where the prompt will appear. */
 function TerminalLoading() {
   return (
-    <div className="term-root" role="dialog" aria-modal="true" aria-label="Loading terminal">
+    <div className="term-root" data-state="loading" role="dialog" aria-modal="true" aria-label="Loading terminal">
       <div className="term-bar">
         <span className="term-dot term-dot--red" />
         <span className="term-dot term-dot--amber" />
@@ -39,7 +39,7 @@ function TerminalLoading() {
  *  the red dot closes; reopening remounts the boundary and retries. */
 function TerminalError({ onClose }: { onClose: () => void }) {
   return (
-    <div className="term-root" role="alertdialog" aria-modal="true" aria-label="Terminal failed to load">
+    <div className="term-root" data-state="error" role="alertdialog" aria-modal="true" aria-label="Terminal failed to load">
       <div className="term-bar">
         <button type="button" className="term-dot term-dot--red" aria-label="Close terminal" onClick={onClose} />
         <span className="term-title">visitor@portfolio — error</span>

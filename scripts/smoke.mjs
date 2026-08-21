@@ -45,7 +45,9 @@ try {
   check('hero heading renders', (await page.locator('h1').count()) === 1);
 
   await page.keyboard.press('Control+k');
-  await page.waitForSelector('.term-root', { timeout: 5000 });
+  // .term-root also matches the loading/error placeholders, so wait for the
+  // prompt input — it only exists once the lazy chunk has actually mounted.
+  await page.waitForSelector('.term-input', { timeout: 10000 });
   check('Ctrl+K opens terminal (lazy chunk loads)', true);
   await page.keyboard.type('help');
   await page.keyboard.press('Enter');
@@ -65,7 +67,7 @@ try {
   const mob = await browser.newPage({ viewport: { width: 390, height: 844 } });
   mob.on('pageerror', (e) => errors.push(e.message));
   await mob.goto(`${BASE}/#terminal`);
-  await mob.waitForSelector('.term-root', { timeout: 5000 });
+  await mob.waitForSelector('.term-input', { timeout: 10000 });
   await mob.locator('.term-chip', { hasText: 'skills' }).click();
   await mob.waitForTimeout(200);
   check('mobile chip runs its command', (await mob.locator('.term-screen').innerText()).includes('languages:'));

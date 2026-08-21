@@ -34,14 +34,29 @@ export function Typewriter({ text, speed = 70, startDelay = 300, className }: Ty
   }, [text, speed, startDelay, reduced]);
 
   const done = count >= text.length;
+  // Every character is always in the DOM — untyped ones are just transparent.
+  // The line layout is therefore final from the first frame, so a name that
+  // wraps starts its second line in place instead of jumping down mid-type.
+  const chars = Array.from(text);
+  const caretAt = Math.max(0, count - 1);
   return (
-    <span className={`typewriter${className ? ` ${className}` : ''}`} aria-hidden="true">
-      {/* invisible full text reserves the final size so typing never reflows */}
-      <span className="typewriter__sizer">{text}</span>
-      <span className="typewriter__live">
-        {text.slice(0, count)}
-        <span className={`typewriter__caret${done ? ' typewriter__caret--rest' : ''}`} />
-      </span>
+    <span
+      className={`typewriter${done ? ' typewriter--done' : ''}${className ? ` ${className}` : ''}`}
+      aria-hidden="true"
+    >
+      {chars.map((ch, i) => (
+        <span
+          key={i}
+          className={
+            'typewriter__char' +
+            (i < count ? ' typewriter__char--in' : '') +
+            (i === caretAt ? ' typewriter__char--caret' : '') +
+            (count === 0 && i === 0 ? ' typewriter__char--caret-start' : '')
+          }
+        >
+          {ch}
+        </span>
+      ))}
     </span>
   );
 }

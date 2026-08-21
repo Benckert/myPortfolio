@@ -275,30 +275,32 @@
   .slide-pager__btn { transition: none; }
 }
 
-/* Typewriter — the invisible sizer reserves the full name's final layout
-   (including line wraps) from the first frame, so the hero doesn't jump from
-   one line to two mid-animation; the typed text paints on top. */
-.typewriter { position: relative; display: inline-block; }
-.typewriter__sizer { visibility: hidden; }
-.typewriter__live { position: absolute; inset: 0; }
-
-/* Typewriter caret */
-.typewriter__caret {
-  display: inline-block;
-  width: 0.08em;
-  height: 1em;
-  margin-left: 0.06em;
+/* Typewriter — every character is rendered from the first frame and merely
+   faded in as it is "typed", so the block never reflows and a wrapped name
+   starts its second line in place. The caret is an absolutely positioned
+   ::after on the last typed character, so it costs no inline width either. */
+.typewriter__char { opacity: 0; }
+.typewriter__char--in { opacity: 1; }
+.typewriter__char--caret { position: relative; }
+.typewriter__char--caret::after {
+  content: '';
+  position: absolute;
+  top: 0.1em;
+  bottom: 0.04em;
+  right: -0.14em;
+  width: 0.06em;
   background: var(--accent);
-  vertical-align: -0.12em;
   animation: caret-blink 1s steps(1) infinite;
 }
+/* Before the first character lands, park the caret to the left of it. */
+.typewriter__char--caret-start::after { right: auto; left: -0.08em; }
 @keyframes caret-blink {
   50% { opacity: 0; }
 }
 /* Once typing finishes, the caret rests: stop blinking and fade out. */
-.typewriter__caret--rest { animation: none; opacity: 0; }
+.typewriter--done .typewriter__char--caret::after { animation: none; opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
-  .typewriter__caret { animation: none; opacity: 0; }
+  .typewriter__char--caret::after { animation: none; opacity: 0; }
 }
 
 /* LogoLoop tech icons — faint, muted, brighten slightly on hover. */
