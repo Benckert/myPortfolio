@@ -60,6 +60,12 @@
 * { box-sizing: border-box; }
 
 html {
+  /* The page background lives on <html>, not <body>: .liquid-bg sits at
+     z-index:-1, which paints above the canvas background but below any
+     background <body> paints itself. An opaque body background would hide
+     the WebGL layer entirely. Keep in sync with the inline paint-early
+     background in index.html. */
+  background: var(--bg);
   scroll-behavior: smooth;
   scroll-snap-type: y mandatory;
   scroll-padding-top: var(--nav-h);
@@ -67,7 +73,7 @@ html {
 
 body {
   margin: 0;
-  background: var(--bg);
+  background: transparent; /* see the note on html above */
   color: var(--fg);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
