@@ -26,6 +26,12 @@ export interface LiquidEtherProps {
   paused?: boolean;
 }
 
+/** Frames per second for the fluid simulation. The effect is a slow, faint
+ *  background, so ~30fps is visually indistinguishable from 60 while halving
+ *  its GPU cost — this is the single biggest lever on the site's smoothness. */
+const TARGET_FPS = 30;
+const FRAME_INTERVAL_MS = 1000 / TARGET_FPS;
+
 export default function LiquidEther({
   mouseForce = 20,
   cursorSize = 100,
@@ -1041,7 +1047,8 @@ export default function LiquidEther({
       autoDriver: AutoDriver;
       output!: Output;
       running: boolean;
-      _loop: () => void;
+      lastFrameTime: number;
+      _loop: (now?: number) => void;
       _resize: () => void;
       _onVisibility: () => void;
 
@@ -1076,6 +1083,7 @@ export default function LiquidEther({
         };
         document.addEventListener('visibilitychange', this._onVisibility);
         this.running = false;
+        this.lastFrameTime = 0;
       }
       init() {
         this.props.$wrapper.prepend(Common.renderer!.domElement);
@@ -1091,14 +1099,23 @@ export default function LiquidEther({
         Common.update();
         this.output.update();
       }
-      loop() {
+      loop(now?: number) {
         if (!this.running) return; // safety
-        this.render();
+        // The fluid moves slowly, so simulating every display frame is wasted
+        // GPU work — cap it (see FRAME_INTERVAL_MS) and skip the render on
+        // frames in between. Raise the cap for a smoother sim, lower it (or
+        // drop `resolution`) if the background costs too much.
+        const t = now ?? performance.now();
+        if (t - this.lastFrameTime >= FRAME_INTERVAL_MS) {
+          this.lastFrameTime = t;
+          this.render();
+        }
         rafRef.current = requestAnimationFrame(this._loop);
       }
       start() {
         if (this.running) return;
         this.running = true;
+        this.lastFrameTime = 0;
         this._loop();
       }
       pause() {

@@ -25,7 +25,11 @@ export function LiquidBackground({ paused = false }: { paused?: boolean }) {
         <Suspense fallback={null}>
           <LiquidEther
             colors={colors}
-            resolution={0.4}
+            // Simulation grid scale — the single biggest performance lever on
+          // the site (0.4 → 0.22 roughly doubled frame rate in testing, and
+          // the softer blobs read fine at 0.3 opacity). Raise for crisper
+          // detail, lower if the background still costs too much.
+          resolution={0.22}
             autoIntensity={1.6}
             autoSpeed={0.4}
             paused={paused}

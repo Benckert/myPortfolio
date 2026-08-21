@@ -73,7 +73,9 @@
 .term-line { white-space: pre-wrap; word-break: break-word; }
 .term-error { color: #ff7b72; }
 .term-success { color: #56d364; }
-.term-heading { color: #58a6ff; font-weight: 700; margin-top: 6px; }
+/* Headings track the site accent so `theme` shows its effect immediately,
+   even while the terminal covers the site. The prompt stays terminal-green. */
+.term-heading { color: var(--accent, #58a6ff); font-weight: 700; margin-top: 6px; }
 .term-intro { color: #8b949e; margin-bottom: 10px; }
 .term-prompt { color: #56d364; }
 .term-echo { color: #c9d1d9; }

@@ -16,7 +16,9 @@ describe('Hero', () => {
     expect(screen.getByRole('link', { name: 'Get in touch' })).toHaveAttribute('href', '#contact');
   });
 
-  it('renders the technologies logo region', () => {
+  // The LogoLoop marquee is temporarily disabled (perf investigation); restore
+  // this alongside the <LogoLoop> block in Hero.tsx.
+  it.skip('renders the technologies logo region', () => {
     render(<Hero onOpenTerminal={() => {}} />);
     expect(screen.getByRole('region', { name: /technolog/i })).toBeInTheDocument();
   });
