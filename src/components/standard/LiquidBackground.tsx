@@ -1,34 +1,26 @@
 import { lazy, Suspense, useMemo } from 'react';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { ErrorBoundary } from '../shared/ErrorBoundary';
+import { cssVar } from '../../lib/cssVar';
+import { useAccent } from '../../lib/useAccent';
+import { buildFluidPalette } from '../../lib/palette';
 
 const LiquidEther = lazy(() => import('../reactbits/LiquidEther'));
-
-/** Palette for the fluid. The stops become a gradient texture, so more of them
- *  means smoother blending rather than a few hard-edged hues. These are
- *  deliberately deeper and less saturated than the site's brand tokens: at this
- *  opacity the bright teal read as a flat wash, while jewel tones keep depth.
- *  Runs near-black → deep teal → petrol → indigo → violet. */
-const PALETTE = [
-  '#050b14',
-  '#08303c',
-  '#0b5a55',
-  '#107f6f',
-  '#14a08c',
-  '#1668a0',
-  '#1f4bb0',
-  '#3a3a9e',
-  '#4a3288',
-];
 
 /** One faint, fixed WebGL fluid layer behind every slide. Lazy-loads three.js so
  *  it is code-split out of the main bundle, and renders nothing under reduced motion.
  *  `paused` stops the render loop while an opaque overlay (the terminal) covers it. */
 export function LiquidBackground({ paused = false }: { paused?: boolean }) {
   const reduced = usePrefersReducedMotion();
-  // Memoised so the array identity is stable: LiquidEther rebuilds its WebGL
-  // context whenever `colors` changes identity.
-  const colors = useMemo(() => PALETTE, []);
+  const accent = useAccent();
+  // Nine stops derived from the accent tokens, so `theme <colour>` recolours
+  // the background too. Memoised on `accent`: LiquidEther rebuilds its WebGL
+  // context whenever this array's identity changes, which should happen only
+  // when the theme actually changes, not on every render.
+  const colors = useMemo(
+    () => buildFluidPalette(accent, cssVar('--accent-2', '#818cf8')),
+    [accent],
+  );
   if (reduced) return null;
   return (
     <div className="liquid-bg" aria-hidden="true" data-testid="liquid-bg">
