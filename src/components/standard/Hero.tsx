@@ -62,7 +62,13 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.18 }}
           >
-            <Portrait src={portraitUrl} name={name} size={320} />
+            <Portrait
+              src={portraitUrl}
+              name={name}
+              size={320}
+              scaleOnHover={1.16}
+              rotateAmplitude={16}
+            />
           </motion.div>
         )}
       </div>
