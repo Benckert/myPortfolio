@@ -55,21 +55,26 @@ export function hslToHex(h: number, s: number, l: number): string {
 const LIGHTNESS = [0.05, 0.13, 0.2, 0.28, 0.35, 0.35, 0.4, 0.42, 0.36];
 const SATURATION = [0.5, 0.68, 0.78, 0.78, 0.78, 0.75, 0.7, 0.6, 0.5];
 
+/** How far the ramp's hue travels either side of the accent, in degrees.
+ *  Anchoring the span on the accent is what makes the background actually read
+ *  as the theme colour: an earlier version interpolated from the accent to a
+ *  fixed indigo secondary, and that indigo end dominated the visible output, so
+ *  every theme came out blue (measured 219°-252° across all five). Leaning
+ *  further forwards than back keeps the default teal drifting into blue, which
+ *  is the look the ramp was tuned for. */
+const HUE_BACK = -45;
+const HUE_FORWARD = 25;
+
 /**
- * Build the fluid's gradient stops from two accent colours. Hue travels the
- * short way around the wheel from `accent` to `secondary`, while lightness and
+ * Build the fluid's gradient stops from the accent colour. Hue sweeps an
+ * analogous span centred slightly ahead of the accent, while lightness and
  * saturation follow the fixed ramp above — so any accent keeps the same depth
  * and only the hue family changes.
  */
-export function buildFluidPalette(accent: string, secondary: string): string[] {
-  const [h1] = hexToHsl(accent);
-  const [h2] = hexToHsl(secondary);
-  // take the shorter path around the wheel (e.g. 350° → 10° goes forwards)
-  let delta = h2 - h1;
-  if (delta > 180) delta -= 360;
-  if (delta < -180) delta += 360;
+export function buildFluidPalette(accent: string): string[] {
+  const [hue] = hexToHsl(accent);
   return LIGHTNESS.map((l, i) => {
     const t = i / (LIGHTNESS.length - 1);
-    return hslToHex(h1 + delta * t, SATURATION[i], l);
+    return hslToHex(hue + HUE_BACK + (HUE_FORWARD - HUE_BACK) * t, SATURATION[i], l);
   });
 }

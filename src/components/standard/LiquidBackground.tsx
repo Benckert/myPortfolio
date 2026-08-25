@@ -1,7 +1,6 @@
 import { lazy, Suspense, useMemo } from 'react';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { ErrorBoundary } from '../shared/ErrorBoundary';
-import { cssVar } from '../../lib/cssVar';
 import { useAccent } from '../../lib/useAccent';
 import { buildFluidPalette } from '../../lib/palette';
 
@@ -13,14 +12,11 @@ const LiquidEther = lazy(() => import('../reactbits/LiquidEther'));
 export function LiquidBackground({ paused = false }: { paused?: boolean }) {
   const reduced = usePrefersReducedMotion();
   const accent = useAccent();
-  // Nine stops derived from the accent tokens, so `theme <colour>` recolours
-  // the background too. Memoised on `accent`: LiquidEther rebuilds its WebGL
+  // Nine stops derived from the accent, so `theme <colour>` recolours the
+  // background too. Memoised on `accent`: LiquidEther rebuilds its WebGL
   // context whenever this array's identity changes, which should happen only
   // when the theme actually changes, not on every render.
-  const colors = useMemo(
-    () => buildFluidPalette(accent, cssVar('--accent-2', '#818cf8')),
-    [accent],
-  );
+  const colors = useMemo(() => buildFluidPalette(accent), [accent]);
   if (reduced) return null;
   return (
     <div className="liquid-bg" aria-hidden="true" data-testid="liquid-bg">
