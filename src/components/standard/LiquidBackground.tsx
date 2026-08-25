@@ -10,15 +10,15 @@ const LiquidEther = lazy(() => import('../reactbits/LiquidEther'));
  *  opacity the bright teal read as a flat wash, while jewel tones keep depth.
  *  Runs near-black → deep teal → petrol → indigo → violet. */
 const PALETTE = [
-  '#04080f',
-  '#06202b',
-  '#083f43',
-  '#0b5a52',
-  '#0e6f63',
-  '#12557f',
-  '#1a3a86',
-  '#2c2f77',
-  '#3a2a63',
+  '#050b14',
+  '#08303c',
+  '#0b5a55',
+  '#107f6f',
+  '#14a08c',
+  '#1668a0',
+  '#1f4bb0',
+  '#3a3a9e',
+  '#4a3288',
 ];
 
 /** One faint, fixed WebGL fluid layer behind every slide. Lazy-loads three.js so
@@ -41,7 +41,7 @@ export function LiquidBackground({ paused = false }: { paused?: boolean }) {
             // (0.4 → 0.22 roughly doubled frame rate in testing). Raise for
             // crisper detail, lower if the background still costs too much.
             resolution={0.22}
-            autoIntensity={1.4}
+            autoIntensity={2.0}
             autoSpeed={0.4}
             paused={paused}
             style={{ width: '100%', height: '100%' }}
