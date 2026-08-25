@@ -45,8 +45,14 @@
   -webkit-mask-composite: xor;
   mask-composite: exclude;
 }
-.spotlight--border [class*='animate-star-movement'] { transition: opacity 0.25s ease; }
-.spotlight--border:hover [class*='animate-star-movement'] { opacity: 0; }
+/* The glints are driven by a keyframe animation that animates opacity, and a
+   running animation beats a plain declaration — so `opacity: 0` alone left them
+   visible and stacking with the ring. Cancelling the animation lets the
+   declaration take effect. */
+.spotlight--border:hover [class*='animate-star-movement'] {
+  animation: none;
+  opacity: 0;
+}
 @media (prefers-reduced-motion: reduce) {
   .spotlight::before { display: none; }
 }
@@ -214,7 +220,7 @@
 .contact__eyebrow { color: var(--accent); font-family: var(--font-mono); margin: 0 0 10px; }
 .contact__title { font-size: clamp(32px, 6vw, 56px); margin: 0 0 16px; }
 .contact__lead { color: var(--muted); max-width: 540px; margin: 0 auto 28px; line-height: 1.7; }
-.contact__socials { display: flex; gap: 20px; justify-content: center; margin-top: 22px; font-family: var(--font-mono); font-size: 14px; }
+.contact__socials { display: flex; gap: 34px; justify-content: center; margin-top: 22px; font-family: var(--font-mono); font-size: 14px; }
 
 /* Footer */
 .footer { border-top: 1px solid var(--border); padding: 28px 0; }
@@ -228,7 +234,7 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.28;
+  opacity: 0.45;
 }
 
 /* Slide pager — right-edge prev/next, revealed on hover of the zone or keyboard
@@ -308,28 +314,44 @@
 .logoloop__icon:hover { color: var(--fg); opacity: 1; }
 
 /* Hero StarBorder CTA — add a teal glow on hover atop StarBorder's own pill. */
-.hero__starcta { transition: box-shadow 0.2s ease; }
-.hero__starcta:hover { box-shadow: 0 0 24px rgba(94, 234, 212, 0.5); }
+/* Hover treatment lives entirely in .spotlight--border (the cursor-tracked
+   ring). The old teal box-shadow glow was removed because it stacked with it —
+   two glows at once. Only the lift remains, matching .btn:hover exactly so both
+   hero CTAs move the same way. */
+.hero__starcta { transition: transform 0.15s ease; }
+.hero__starcta:hover { transform: translateY(-2px); }
 
 /* Hero tech-logo marquee at the slide bottom. */
 .hero__logos { margin-top: 44px; }
 
 /* Contact social links — animated [ … ] brackets on hover AND focus. */
-.contact__socials a { position: relative; }
+/* The brackets are absolutely positioned outside the link box, so revealing
+   them changes no widths and the neighbouring link stays put (animating their
+   margins used to reflow the row). The hovered link scales up slightly. */
+.contact__socials a {
+  position: relative;
+  display: inline-block;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+.contact__socials a:hover,
+.contact__socials a:focus-visible { transform: scale(1.12); }
 .contact__socials a::before,
 .contact__socials a::after {
-  display: inline-block;
+  position: absolute;
+  top: 0;
   opacity: 0;
   color: var(--accent);
-  transition: opacity 0.2s ease, margin 0.2s ease;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
-.contact__socials a::before { content: '['; margin-right: 0; }
-.contact__socials a::after { content: ']'; margin-left: 0; }
+.contact__socials a::before { content: '['; right: 100%; transform: translateX(6px); }
+.contact__socials a::after { content: ']'; left: 100%; transform: translateX(-6px); }
 .contact__socials a:hover::before,
-.contact__socials a:focus-visible::before { opacity: 1; margin-right: 6px; }
+.contact__socials a:focus-visible::before { opacity: 1; transform: translateX(-2px); }
 .contact__socials a:hover::after,
-.contact__socials a:focus-visible::after { opacity: 1; margin-left: 6px; }
+.contact__socials a:focus-visible::after { opacity: 1; transform: translateX(2px); }
 @media (prefers-reduced-motion: reduce) {
+  .contact__socials a,
   .contact__socials a::before,
   .contact__socials a::after { transition: none; }
 }
