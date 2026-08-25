@@ -8,13 +8,23 @@ interface PortraitProps {
   name: string;
   /** Square size of the tilt card in px. */
   size: number;
+  /** Hover zoom factor. The hero portrait leans harder than About's. */
+  scaleOnHover?: number;
+  /** Degrees of tilt at the card's edge. */
+  rotateAmplitude?: number;
 }
 
 /** The hover-tilting portrait shared by Hero and About. Purely decorative —
  *  no click action, no lightbox, no tooltip. Four states: a skeleton shimmers
  *  while the image loads, the card is the default/success state, and on a
  *  failed load the whole block hides (an empty frame is worse than nothing). */
-export function Portrait({ src, name, size }: PortraitProps) {
+export function Portrait({
+  src,
+  name,
+  size,
+  scaleOnHover = 1.06,
+  rotateAmplitude = 12,
+}: PortraitProps) {
   const reduced = usePrefersReducedMotion();
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const px = `${size}px`;
@@ -28,8 +38,8 @@ export function Portrait({ src, name, size }: PortraitProps) {
         containerWidth={px}
         imageHeight={px}
         imageWidth={px}
-        rotateAmplitude={reduced ? 0 : 12}
-        scaleOnHover={reduced ? 1 : 1.06}
+        rotateAmplitude={reduced ? 0 : rotateAmplitude}
+        scaleOnHover={reduced ? 1 : scaleOnHover}
         showMobileWarning={false}
         showTooltip={false}
         onImageLoad={() => setStatus('ready')}

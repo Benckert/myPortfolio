@@ -228,7 +228,7 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.3;
+  opacity: 0.28;
 }
 
 /* Slide pager — right-edge prev/next, revealed on hover of the zone or keyboard
