@@ -220,7 +220,7 @@
 .contact__eyebrow { color: var(--accent); font-family: var(--font-mono); margin: 0 0 10px; }
 .contact__title { font-size: clamp(32px, 6vw, 56px); margin: 0 0 16px; }
 .contact__lead { color: var(--muted); max-width: 540px; margin: 0 auto 28px; line-height: 1.7; }
-.contact__socials { display: flex; gap: 34px; justify-content: center; margin-top: 22px; font-family: var(--font-mono); font-size: 14px; }
+.contact__socials { display: flex; gap: 46px; justify-content: center; margin-top: 22px; font-family: var(--font-mono); font-size: 14px; }
 
 /* Footer */
 .footer { border-top: 1px solid var(--border); padding: 28px 0; }
@@ -344,12 +344,17 @@
   pointer-events: none;
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
-.contact__socials a::before { content: '['; right: 100%; transform: translateX(6px); }
-.contact__socials a::after { content: ']'; left: 100%; transform: translateX(-6px); }
+/* Rest and hover positions are both offsets from the link's edge, so the
+   bracket is already laid out before it fades in — it eases outward from a
+   defined start rather than popping into place. Travel is kept short (6px) so
+   the movement reads as a settle, not a jump; the hover offset is what sets
+   the breathing room between bracket and text. */
+.contact__socials a::before { content: '['; right: 100%; transform: translateX(4px); }
+.contact__socials a::after { content: ']'; left: 100%; transform: translateX(-4px); }
 .contact__socials a:hover::before,
-.contact__socials a:focus-visible::before { opacity: 1; transform: translateX(-2px); }
+.contact__socials a:focus-visible::before { opacity: 1; transform: translateX(-10px); }
 .contact__socials a:hover::after,
-.contact__socials a:focus-visible::after { opacity: 1; transform: translateX(2px); }
+.contact__socials a:focus-visible::after { opacity: 1; transform: translateX(10px); }
 @media (prefers-reduced-motion: reduce) {
   .contact__socials a,
   .contact__socials a::before,

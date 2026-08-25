@@ -2,6 +2,7 @@ import type { Command, CommandContext, OutputLine } from './types';
 import { suggestCommand } from './suggest';
 import { listFiles, readFile, ROOT_ENTRIES } from './vfs';
 import { getLang, setLang } from './useLang';
+import { setAccent } from './useAccent';
 
 export const registry: Record<string, Command> = {};
 
@@ -211,22 +212,22 @@ register({
         { type: 'text', text: `usage: theme <${Object.keys(THEMES).join('|')}|reset>` },
       ];
     }
-    const root = document.documentElement;
     if (pick === 'reset') {
-      root.style.removeProperty('--accent');
+      setAccent(null);
       return [
         { type: 'heading', text: '████████████  default' },
         { type: 'success', text: 'accent restored.' },
       ];
     }
-    root.style.setProperty('--accent', THEMES[pick]);
+    setAccent(THEMES[pick]);
     // The swatch and headings below are painted with --accent, so the change
     // shows up here as well as on the site behind the terminal.
     return [
       { type: 'heading', text: `████████████  ${pick}` },
       { type: 'success', text: `accent → ${THEMES[pick]}` },
       { type: 'text', text: 'recolors headings here, plus buttons, links, section' },
-      { type: 'text', text: 'numbers and timeline dots on the site. `theme reset` to undo.' },
+      { type: 'text', text: 'numbers, timeline dots and the fluid background.' },
+      { type: 'text', text: 'run `theme reset` to undo.' },
     ];
   },
 });
