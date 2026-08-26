@@ -10,7 +10,9 @@
  *                 This row is what you really see; the left of it is near-
  *                 invisible by design.
  *
- * Usage: node scripts/palette-preview.mjs [outfile]
+ * Usage: npx vite-node scripts/palette-preview.mjs [outfile] [--artifact]
+ *   --artifact  omit the doctype/meta wrapper, for publishing as an Artifact
+ *               (the host supplies the document shell).
  */
 import { writeFileSync } from 'node:fs';
 import { buildFluidPalette, hexToHsl, PALETTE_STEPS } from '../src/lib/palette.ts';
@@ -70,45 +72,73 @@ const sections = Object.entries(THEMES)
 
     return `<section>
       <h2><span class="dot" style="background:${accent}"></span>${name}
-        <code class="dim">accent ${accent} · hue ${ah.toFixed(0)}°</code></h2>
+        <span class="meta">accent ${accent} · hue ${ah.toFixed(0)}°</span></h2>
       <p class="lbl">stops handed to LiquidEther</p>
       <div class="chips">${chips}</div>
-      <p class="lbl">on screen — position is fluid speed, alpha follows speed</p>
+      <p class="lbl">as the shader composites it — position is fluid speed, alpha follows speed</p>
       <div class="bar">${bar}</div>
-      <div class="axis"><span>slow / transparent</span><span>fast / opaque</span></div>
+      <div class="axis"><span>slow · transparent</span><span>fast · opaque</span></div>
     </section>`;
   })
   .join('');
 
-const html = `<!doctype html><meta charset="utf-8">
-<title>Fluid palette preview</title>
+/* Committed to the dark ground on purpose: these swatches only mean anything
+   judged against the page background they actually composite over, so every
+   colour here is painted explicitly rather than inheriting a host theme. Type
+   and neutrals come from the site's own tokens. */
+const body = `<title>Fluid Palette</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-  body { margin:0; padding:32px; background:${BG}; color:#e6edf3;
-         font:14px/1.5 ui-sans-serif, system-ui, sans-serif; }
-  h1 { font-size:20px; margin:0 0 4px; }
-  .note { color:#93a1b1; max-width:70ch; margin:0 0 28px; }
-  section { margin:0 0 34px; }
-  h2 { font-size:15px; margin:0 0 10px; display:flex; align-items:center; gap:10px;
-       text-transform:capitalize; font-weight:600; }
-  .dot { width:14px; height:14px; border-radius:50%; display:inline-block; }
-  .lbl { color:#93a1b1; font-size:12px; margin:12px 0 6px; }
+  :root {
+    --bg: ${BG}; --elev: #121826; --fg: #e6edf3; --muted: #93a1b1; --line: #1f2937;
+    --sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:40px 32px 64px; background:var(--bg); color:var(--fg);
+         font-family:var(--sans); font-size:14px; line-height:1.5; }
+  .wrap { max-width:1000px; margin:0 auto; display:flex; flex-direction:column; gap:40px; }
+  header { display:flex; flex-direction:column; gap:10px; }
+  h1 { font-size:26px; font-weight:600; margin:0; letter-spacing:-0.015em; text-wrap:balance; }
+  .note { color:var(--muted); max-width:66ch; margin:0; }
+  .note code, .k { font-family:var(--mono); font-size:0.86em; color:var(--fg); }
+  section { display:flex; flex-direction:column; gap:8px; }
+  h2 { font-size:13px; margin:0; display:flex; align-items:center; gap:10px;
+       font-weight:600; letter-spacing:0.08em; text-transform:uppercase; }
+  .dot { width:12px; height:12px; border-radius:50%; flex:none; }
+  h2 .meta { font-family:var(--mono); font-size:11px; color:var(--muted);
+             letter-spacing:0; text-transform:none; font-weight:400; }
+  .lbl { color:var(--muted); font-size:12px; margin:10px 0 0; }
   .chips { display:flex; flex-wrap:wrap; gap:6px; }
-  .chip { display:flex; flex-direction:column; gap:2px; align-items:center; width:86px; }
-  .sw { width:100%; height:46px; border-radius:6px; border:1px solid #1f2937; }
-  code { font:11px ui-monospace, monospace; }
-  .dim { color:#93a1b1; }
-  .bar { display:flex; height:64px; border-radius:8px; overflow:hidden; border:1px solid #1f2937; }
+  .chip { display:flex; flex-direction:column; gap:3px; align-items:center;
+          width:78px; font-family:var(--mono); font-size:10px;
+          font-variant-numeric:tabular-nums; }
+  .sw { width:100%; height:44px; border-radius:5px; border:1px solid var(--line); }
+  .dim { color:var(--muted); }
+  .bar { display:flex; height:62px; border-radius:6px; overflow:hidden;
+         border:1px solid var(--line); }
   .bar i { flex:1; }
-  .axis { display:flex; justify-content:space-between; color:#93a1b1; font-size:11px; margin-top:4px; }
+  .axis { display:flex; justify-content:space-between; color:var(--muted);
+          font-family:var(--mono); font-size:10px; }
 </style>
-<h1>Fluid palette — ${PALETTE_STEPS} stops per theme</h1>
-<p class="note">Edit <code>HUE_OFFSET</code> / <code>SATURATION</code> / <code>LIGHTNESS</code> in
-<code>src/lib/palette.ts</code> and re-run <code>node scripts/palette-preview.mjs</code>.
-The lower “on screen” bar is the honest one: LiquidEther indexes the palette by fluid
-speed and uses that same value as opacity, so the left third is barely visible no
-matter what colour you put there.</p>
-${sections}`;
+<div class="wrap">
+  <header>
+    <h1>Fluid Palette</h1>
+    <p class="note">${PALETTE_STEPS} stops per theme, generated from each accent by
+      <span class="k">buildFluidPalette()</span>. Retune the
+      <span class="k">HUE_OFFSET</span> / <span class="k">SATURATION</span> /
+      <span class="k">LIGHTNESS</span> arrays in <span class="k">src/lib/palette.ts</span>,
+      then re-run the generator.</p>
+    <p class="note">The lower bar in each pair is the honest one. LiquidEther indexes this
+      palette by fluid speed and reuses that same value as opacity, so the left end is
+      barely visible no matter what colour sits there — judge the ramp by its right half.</p>
+  </header>
+  ${sections}
+</div>`;
 
-const out = process.argv[2] ?? 'palette-preview.html';
-writeFileSync(out, html);
+const artifact = process.argv.includes('--artifact');
+const out = process.argv.slice(2).find((a) => !a.startsWith('--')) ?? 'palette-preview.html';
+writeFileSync(out, artifact ? body : `<!doctype html><meta charset="utf-8">\n${body}`);
 console.log(`wrote ${out} (${PALETTE_STEPS} stops × ${Object.keys(THEMES).length} themes)`);
