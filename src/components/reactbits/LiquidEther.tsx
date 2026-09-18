@@ -24,13 +24,9 @@ export interface LiquidEtherProps {
   autoRampDuration?: number;
   /** Externally pause the render loop (e.g. while an opaque overlay covers it). */
   paused?: boolean;
+  /** Cap the simulation's frame rate. 0 means uncapped (follow the display). */
+  maxFps?: number;
 }
-
-/** Frames per second for the fluid simulation. The effect is a slow, faint
- *  background, so ~30fps is visually indistinguishable from 60 while halving
- *  its GPU cost — this is the single biggest lever on the site's smoothness. */
-const TARGET_FPS = 30;
-const FRAME_INTERVAL_MS = 1000 / TARGET_FPS;
 
 export default function LiquidEther({
   mouseForce = 20,
@@ -52,7 +48,8 @@ export default function LiquidEther({
   takeoverDuration = 0.25,
   autoResumeDelay = 1000,
   autoRampDuration = 0.6,
-  paused = false
+  paused = false,
+  maxFps = 0
 }: LiquidEtherProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const webglRef = useRef<any>(null);
@@ -301,6 +298,15 @@ export default function LiquidEther({
       }
       onDocumentLeave() {
         this.isHoverInside = false;
+      }
+      /** Forget how far the pointer moved since the last frame. The pointer
+       *  listeners keep firing while the render loop is paused, but update()
+       *  does not run, so coords_old goes stale by however far the cursor
+       *  travelled — resuming would otherwise inject that whole distance as one
+       *  enormous velocity spike, which reads as a splash out of nowhere. */
+      resetDelta() {
+        this.coords_old.copy(this.coords);
+        this.diff.set(0, 0);
       }
       update() {
         if (this.takeoverActive) {
@@ -1048,6 +1054,7 @@ export default function LiquidEther({
       output!: Output;
       running: boolean;
       lastFrameTime: number;
+      frameInterval: number;
       _loop: (now?: number) => void;
       _resize: () => void;
       _onVisibility: () => void;
@@ -1084,6 +1091,7 @@ export default function LiquidEther({
         document.addEventListener('visibilitychange', this._onVisibility);
         this.running = false;
         this.lastFrameTime = 0;
+        this.frameInterval = maxFps > 0 ? 1000 / maxFps : 0;
       }
       init() {
         this.props.$wrapper.prepend(Common.renderer!.domElement);
@@ -1101,12 +1109,11 @@ export default function LiquidEther({
       }
       loop(now?: number) {
         if (!this.running) return; // safety
-        // The fluid moves slowly, so simulating every display frame is wasted
-        // GPU work — cap it (see FRAME_INTERVAL_MS) and skip the render on
-        // frames in between. Raise the cap for a smoother sim, lower it (or
-        // drop `resolution`) if the background costs too much.
+        // Optionally skip frames to cap the simulation's rate (maxFps). A cap
+        // saves GPU but makes motion visibly steppier, so 0 (uncapped) is the
+        // default.
         const t = now ?? performance.now();
-        if (t - this.lastFrameTime >= FRAME_INTERVAL_MS) {
+        if (t - this.lastFrameTime >= this.frameInterval) {
           this.lastFrameTime = t;
           this.render();
         }
@@ -1116,6 +1123,7 @@ export default function LiquidEther({
         if (this.running) return;
         this.running = true;
         this.lastFrameTime = 0;
+        Mouse.resetDelta(); // see resetDelta(): avoids a spike on resume
         this._loop();
       }
       pause() {

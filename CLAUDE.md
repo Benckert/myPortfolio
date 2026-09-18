@@ -21,7 +21,7 @@ npx vitest run -t "Tab completes"            # by test name substring
 
 `npm run build` is the type-check gate — there is no separate lint step. TypeScript runs in `strict` mode with `noUnusedLocals`/`noUnusedParameters`, so unused vars fail the build.
 
-Add shadcn/ui components with `npx shadcn@latest add <name>` — they land in `src/components/ui/`. The `shadcn` and `reactbits` MCP servers are configured for browsing/scaffolding components.
+Add shadcn/ui components with `npx shadcn@latest add <name>` — they land in `src/components/ui/`. There is no MCP server configured in this repo for shadcn or reactbits; reactbits components are vendored by hand into `src/components/reactbits/` (upstream: github.com/DavidHDev/react-bits).
 
 ## Architecture
 
@@ -42,6 +42,7 @@ Three architectural ideas tie the codebase together:
 - `src/components/reactbits/` — vendored effect components used by the site (ClickSpark, LiquidEther, LogoLoop, StarBorder, TiltedCard).
 - `src/components/ui/` — shadcn/ui primitives (generated; e.g. `button.tsx`). Tailwind-classed, themed via the `--color-*` bridge above.
 - `src/lib/` — non-React logic: `commands`, `vfs`, `suggest`, `useTerminal`, `useMode`, `motion`, `types`, `utils` (`cn`).
+- `src/config/fluid.ts` — every knob for the WebGL fluid background (colours, opacity, resolution, frame cap, forces), each documented. `LiquidBackground` and `palette.ts` read from it; tune there rather than in the components.
 
 ### Motion & accessibility
 
@@ -63,5 +64,5 @@ Tailwind v4 + shadcn were adopted on top of the existing hand-written CSS; the t
 
 ## Repo notes
 
-- The default/integration branch is **`master`** (there is no `main` and no configured remote). Do feature work on a branch, then merge to `master`.
+- The default/integration branch is **`master`** (there is no `main`). `origin` is the GitHub remote. Do feature work on a branch, then merge to `master`.
 - Deploy is a static `dist/` build. SPA fallback rewrites are configured for Vercel (`vercel.json`) and Netlify (`public/_redirects`).
