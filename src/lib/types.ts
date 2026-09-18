@@ -1,7 +1,13 @@
 import type { Content } from '../data/content';
 
 export type OutputLine =
-  | { type: 'text' | 'error' | 'success' | 'heading'; text: string }
+  | {
+      type: 'text' | 'error' | 'success' | 'heading';
+      text: string;
+      /** Literal colour for this line. Headings otherwise follow --accent,
+       *  which would retro-recolour past output when the theme changes. */
+      color?: string;
+    }
   | { type: 'link'; label: string; href: string };
 
 export interface CommandContext {

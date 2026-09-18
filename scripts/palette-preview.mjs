@@ -2,13 +2,13 @@
  * Renders the fluid palette for every theme to a standalone HTML page, so the
  * ramp can be judged by eye and by number instead of by squinting at the site.
  *
- * Each theme shows two rows:
- *   "stops"   — the raw colours handed to LiquidEther, one chip per entry.
- *   "on screen" — the same ramp as the shader actually composites it: position
- *                 is fluid speed, and because speed drives opacity too, every
- *                 sample is drawn at alpha = speed over the page background.
- *                 This row is what you really see; the left of it is near-
- *                 invisible by design.
+ * Each theme shows the ramp twice:
+ *   "the ramp"  — every stop, opaque, plus a labelled sample of the values.
+ *   "on screen" — the same ramp as the shader actually composites it. Position
+ *                 is raw fluid speed; the shader turns that into a palette
+ *                 index with a soft knee, 1 - exp(-speed * SPEED_RESPONSE), and
+ *                 reuses it as opacity. This row is what you really see; the
+ *                 left of it is near-invisible by design.
  *
  * Usage: npx vite-node scripts/palette-preview.mjs [outfile] [--artifact]
  *   --artifact  omit the doctype/meta wrapper, for publishing as an Artifact
@@ -41,8 +41,16 @@ const sections = Object.entries(THEMES)
     const stops = buildFluidPalette(accent);
     const [ah] = hexToHsl(accent);
 
+    // The ramp itself, every stop, opaque — the colours before the shader
+    // weights them by speed.
+    const ramp = stops.map((hex) => `<i style="background:${hex}"></i>`).join('');
+
+    // Too many stops to chip individually, so label an even sample.
+    const every = Math.max(1, Math.round(stops.length / 8));
     const chips = stops
-      .map((hex, i) => {
+      .map((hex, i) => ({ hex, i }))
+      .filter(({ i }) => i % every === 0 || i === stops.length - 1)
+      .map(({ hex, i }) => {
         const [h, s, l] = hexToHsl(hex);
         return `<div class="chip">
           <div class="sw" style="background:${hex}"></div>
@@ -52,9 +60,12 @@ const sections = Object.entries(THEMES)
       })
       .join('');
 
-    // 60 samples across speed 0..1, each drawn at alpha = speed
+    // 60 samples across raw speed 0..2.5, run through the same soft-knee
+    // response as the shader (keep SPEED_RESPONSE in sync with LiquidEther).
+    const SPEED_RESPONSE = 1.6;
     const bar = Array.from({ length: 60 }, (_, i) => {
-      const t = i / 59;
+      const speed = (i / 59) * 2.5;
+      const t = 1 - Math.exp(-speed * SPEED_RESPONSE);
       const idx = t * (stops.length - 1);
       const a = stops[Math.floor(idx)];
       const b = stops[Math.min(stops.length - 1, Math.ceil(idx))];
@@ -73,11 +84,12 @@ const sections = Object.entries(THEMES)
     return `<section>
       <h2><span class="dot" style="background:${accent}"></span>${name}
         <span class="meta">accent ${accent} · hue ${ah.toFixed(0)}°</span></h2>
-      <p class="lbl">stops handed to LiquidEther</p>
+      <p class="lbl">the ramp — all ${stops.length} stops, opaque</p>
+      <div class="bar">${ramp}</div>
       <div class="chips">${chips}</div>
       <p class="lbl">as the shader composites it — position is fluid speed, alpha follows speed</p>
       <div class="bar">${bar}</div>
-      <div class="axis"><span>slow · transparent</span><span>fast · opaque</span></div>
+      <div class="axis"><span>speed 0 · transparent</span><span>speed 2.5 · opaque</span></div>
     </section>`;
   })
   .join('');
@@ -111,7 +123,7 @@ const body = `<title>Fluid Palette</title>
   h2 .meta { font-family:var(--mono); font-size:11px; color:var(--muted);
              letter-spacing:0; text-transform:none; font-weight:400; }
   .lbl { color:var(--muted); font-size:12px; margin:10px 0 0; }
-  .chips { display:flex; flex-wrap:wrap; gap:6px; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
   .chip { display:flex; flex-direction:column; gap:3px; align-items:center;
           width:78px; font-family:var(--mono); font-size:10px;
           font-variant-numeric:tabular-nums; }
@@ -131,9 +143,10 @@ const body = `<title>Fluid Palette</title>
       <span class="k">HUE_OFFSET</span> / <span class="k">SATURATION</span> /
       <span class="k">LIGHTNESS</span> arrays in <span class="k">src/lib/palette.ts</span>,
       then re-run the generator.</p>
-    <p class="note">The lower bar in each pair is the honest one. LiquidEther indexes this
-      palette by fluid speed and reuses that same value as opacity, so the left end is
-      barely visible no matter what colour sits there — judge the ramp by its right half.</p>
+    <p class="note">The lower bar in each pair is the honest one. LiquidEther turns fluid
+      speed into a palette index through a soft knee and reuses that value as opacity, so
+      the slow end is barely visible no matter what colour sits there — judge the ramp by
+      its right half.</p>
   </header>
   ${sections}
 </div>`;
