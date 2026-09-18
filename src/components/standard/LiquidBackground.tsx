@@ -31,6 +31,7 @@ export function LiquidBackground({ paused = false }: { paused?: boolean }) {
             resolution={0.22}
             autoIntensity={2.0}
             autoSpeed={0.4}
+            mouseForce={14}
             paused={paused}
             style={{ width: '100%', height: '100%' }}
           />

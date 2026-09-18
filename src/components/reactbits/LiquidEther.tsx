@@ -482,16 +482,9 @@ export default function LiquidEther({
     uniform sampler2D palette;
     uniform vec4 bgColor;
     varying vec2 uv;
-    // Soft-knee speed response. The original clamped raw speed to 1.0, so any
-    // brisk stroke pinned a large region to the final palette stop: a flat slab
-    // of one colour with a hard seam where neighbouring pixels fell below the
-    // clamp. This maps [0, inf) into [0, 1) asymptotically instead, so fast
-    // motion keeps climbing the ramp without ever hard-clipping.
-    const float SPEED_RESPONSE = 1.6;
     void main(){
     vec2 vel = texture2D(velocity, uv).xy;
-    float speed = length(vel);
-    float lenv = 1.0 - exp(-speed * SPEED_RESPONSE);
+    float lenv = clamp(length(vel), 0.0, 1.0);
     vec3 c = texture2D(palette, vec2(lenv, 0.5)).rgb;
     vec3 outRGB = mix(bgColor.rgb, c, lenv);
     float outA = mix(bgColor.a, 1.0, lenv);
