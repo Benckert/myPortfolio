@@ -49,86 +49,39 @@ export function hslToHex(h: number, s: number, l: number): string {
   return `#${to(r)}${to(g)}${to(b)}`;
 }
 
-/* ── The ramp ────────────────────────────────────────────────────────────────
- * Three parallel arrays, one entry per gradient stop; all three must stay the
- * same length, and that length is simply how many stops the fluid blends
- * between (the stops become a linearly-filtered 1-D texture, so nothing here
- * is magic — add or remove entries freely).
+/* ── The palette ─────────────────────────────────────────────────────────────
+ * LiquidEther is built around a short list of colours — its own demo exposes
+ * exactly three pickers, and its default ['#5227FF', '#FF9FFC', '#B497CF'] is
+ * three mid-to-light tones about 54° apart in hue.
  *
- * Read LiquidEther's colour shader before retuning these:
+ * The important part is what those defaults do *not* include: anything dark.
+ * The shader already fades to the page background on its own —
  *
- *     float lenv = clamp(length(vel), 0.0, 1.0);   // fluid SPEED at this pixel
- *     vec3  c    = texture2D(palette, vec2(lenv, 0.5)).rgb;
- *     outRGB     = mix(bgColor.rgb, c, lenv);
- *     outA       = mix(bgColor.a,   1.0, lenv);
+ *     lenv   = clamp(length(vel), 0.0, 1.0)   // fluid speed
+ *     outRGB = mix(bgColor.rgb, c, lenv)
+ *     outA   = mix(bgColor.a,   1.0, lenv)
  *
- * The palette is indexed by how fast the fluid is moving — and that same value
- * also drives opacity. So the low indices are doubly faint: they are picked
- * only where the fluid is slow, and there the pixel is nearly transparent
- * anyway. Only the upper part of the ramp is really visible on screen. Spend
- * the early entries on a dark fringe and put the colour you actually want to
- * see from index ~3 upward.
+ * — so slow fluid is transparent and the dark page shows through. Darkness is
+ * the job of alpha, not of the colours. Encoding a dark-to-light ramp in the
+ * palette as well double-counts it, and that is what produced the hard seam:
+ * the clamp pins fast regions to the last stop, and a *bright* last stop
+ * against *dark* neighbouring stops makes that boundary a visible edge. Three
+ * tones of similar lightness make the same clamp invisible.
  *
- * Iridescence comes from the hue sweeping while saturation stays high: because
- * a single frame contains a whole range of speeds, a spread-out hue ramp shows
- * several neighbouring hues at once, like an oil slick. HUE_OFFSET entries are
- * degrees relative to the accent, so the shimmer always sits around the theme
- * colour rather than drifting to a fixed hue.
+ * Hue offsets are relative to the accent, so the shimmer follows the theme.
  * ─────────────────────────────────────────────────────────────────────────── */
-// Control points, not stops. Offsets are placed so the *visible* upper half
-// straddles the accent: a ramp that merely spans the accent renders far ahead
-// of it, because the bright high-speed end dominates (an earlier sweep of
-// -38°..+62° measured ~+50° off, turning amber into green). The span is wide
-// on purpose — that breadth is what reads as iridescence rather than a wash.
-const HUE_OFFSET = [-95, -90, -85, -80, -73, -55, -37, -19, -2, 17, 35, 51];
-const SATURATION = [0.5, 0.62, 0.72, 0.8, 0.86, 0.92, 0.88, 0.94, 0.86, 0.9, 0.8, 0.72];
-const LIGHTNESS = [0.05, 0.1, 0.17, 0.26, 0.32, 0.38, 0.45, 0.49, 0.55, 0.58, 0.62, 0.66];
+const STOPS = [
+  { dh: -55, s: 0.85, l: 0.44 },
+  { dh: -25, s: 0.75, l: 0.56 },
+  { dh: 10, s: 0.8, l: 0.5 },
+];
 
-/**
- * Stops actually handed to the shader. The control points above are resampled
- * up to this many, because the palette becomes a linearly-filtered texture:
- * with one texel per control point, every control point is a kink in the
- * gradient, and those kinks show up on screen as hard seams between colours.
- * Resampling along a smooth curve turns them into continuous transitions.
- */
-const STOPS = 64;
+/** Number of colours handed to the fluid. */
+export const PALETTE_STEPS = STOPS.length;
 
-/** Number of gradient stops the fluid blends between. */
-export const PALETTE_STEPS = STOPS;
-
-/** Catmull-Rom: passes through every control point with a continuous slope,
- *  so the curve neither kinks (linear) nor flattens at each point (smoothstep). */
-function spline(p0: number, p1: number, p2: number, p3: number, t: number): number {
-  const t2 = t * t;
-  const t3 = t2 * t;
-  return (
-    0.5 *
-    (2 * p1 + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3)
-  );
-}
-
-/** Sample a control-point array at t ∈ [0,1] along a smooth curve. */
-function sampleCurve(control: number[], t: number): number {
-  const x = t * (control.length - 1);
-  const i = Math.floor(x);
-  const at = (k: number) => control[Math.min(control.length - 1, Math.max(0, k))];
-  return spline(at(i - 1), at(i), at(i + 1), at(i + 2), x - i);
-}
-
-/**
- * Build the fluid's gradient stops from the accent colour. The three control
- * arrays above define the ramp's shape and are each smoothly resampled to
- * STOPS entries; only the hue is relative to the accent, so any theme keeps
- * the same shape and shimmer.
- */
+/** Build the fluid's colours from the accent: an analogous spread at roughly
+ *  even lightness, so the effect reads as the theme colour with depth. */
 export function buildFluidPalette(accent: string): string[] {
   const [hue] = hexToHsl(accent);
-  return Array.from({ length: STOPS }, (_, i) => {
-    const t = i / (STOPS - 1);
-    return hslToHex(
-      hue + sampleCurve(HUE_OFFSET, t),
-      Math.min(1, Math.max(0, sampleCurve(SATURATION, t))),
-      Math.min(1, Math.max(0, sampleCurve(LIGHTNESS, t))),
-    );
-  });
+  return STOPS.map(({ dh, s, l }) => hslToHex(hue + dh, s, l));
 }
