@@ -229,12 +229,13 @@
 
 
 /* Faint fixed WebGL background — sits behind all transparent snap-sections. */
+/* Opacity is set inline from src/config/fluid.ts so every fluid knob lives in
+   one file; everything else about the layer is structural. */
 .liquid-bg {
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.45;
 }
 
 /* Slide pager — right-edge prev/next, revealed on hover of the zone or keyboard

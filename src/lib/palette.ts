@@ -1,6 +1,7 @@
 /** Colour helpers for deriving the WebGL fluid palette from the site's accent
  *  tokens, so `theme <colour>` recolours the background instead of leaving it
- *  stranded on a hardcoded ramp. */
+ *  stranded on a hardcoded ramp. Tune the colours in src/config/fluid.ts. */
+import { fluidConfig } from '../config/fluid';
 
 function hexToRgb(hex: string): [number, number, number] {
   let h = hex.trim().replace('#', '');
@@ -50,38 +51,19 @@ export function hslToHex(h: number, s: number, l: number): string {
 }
 
 /* ── The palette ─────────────────────────────────────────────────────────────
- * LiquidEther is built around a short list of colours — its own demo exposes
- * exactly three pickers, and its default ['#5227FF', '#FF9FFC', '#B497CF'] is
- * three mid-to-light tones about 54° apart in hue.
- *
- * The important part is what those defaults do *not* include: anything dark.
- * The shader already fades to the page background on its own —
- *
- *     lenv   = clamp(length(vel), 0.0, 1.0)   // fluid speed
- *     outRGB = mix(bgColor.rgb, c, lenv)
- *     outA   = mix(bgColor.a,   1.0, lenv)
- *
- * — so slow fluid is transparent and the dark page shows through. Darkness is
- * the job of alpha, not of the colours. Encoding a dark-to-light ramp in the
- * palette as well double-counts it, and that is what produced the hard seam:
- * the clamp pins fast regions to the last stop, and a *bright* last stop
- * against *dark* neighbouring stops makes that boundary a visible edge. Three
- * tones of similar lightness make the same clamp invisible.
- *
- * Hue offsets are relative to the accent, so the shimmer follows the theme.
+ * The colours themselves live in src/config/fluid.ts; this module only turns
+ * them into hex for the accent in play. See that file for why they are all
+ * mid-to-light and why the set sits behind the accent.
  * ─────────────────────────────────────────────────────────────────────────── */
-const STOPS = [
-  { dh: -55, s: 0.85, l: 0.44 },
-  { dh: -25, s: 0.75, l: 0.56 },
-  { dh: 10, s: 0.8, l: 0.5 },
-];
 
 /** Number of colours handed to the fluid. */
-export const PALETTE_STEPS = STOPS.length;
+export const PALETTE_STEPS = fluidConfig.stops.length;
 
 /** Build the fluid's colours from the accent: an analogous spread at roughly
  *  even lightness, so the effect reads as the theme colour with depth. */
 export function buildFluidPalette(accent: string): string[] {
   const [hue] = hexToHsl(accent);
-  return STOPS.map(({ dh, s, l }) => hslToHex(hue + dh, s, l));
+  return fluidConfig.stops.map(({ hueOffset, saturation, lightness }) =>
+    hslToHex(hue + hueOffset, saturation, lightness),
+  );
 }
