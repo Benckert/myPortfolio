@@ -10,5 +10,12 @@ export function TerminalOutput({ line }: { line: OutputLine }) {
       </div>
     );
   }
-  return <div className={`term-line term-${line.type}`}>{line.text || ' '}</div>;
+  return (
+    <div
+      className={`term-line term-${line.type}`}
+      style={line.color ? { color: line.color } : undefined}
+    >
+      {line.text || ' '}
+    </div>
+  );
 }

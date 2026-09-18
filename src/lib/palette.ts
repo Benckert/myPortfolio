@@ -75,23 +75,60 @@ export function hslToHex(h: number, s: number, l: number): string {
  * degrees relative to the accent, so the shimmer always sits around the theme
  * colour rather than drifting to a fixed hue.
  * ─────────────────────────────────────────────────────────────────────────── */
-// Offsets are shifted so the *visible* stops (roughly index 4 upward) straddle
-// the accent evenly. A ramp that merely spans the accent renders far ahead of
-// it, because the bright high-speed end dominates: an earlier sweep of
-// -38°..+62° measured ~+50° off the accent, turning amber into green.
-const HUE_OFFSET = [-78, -75, -72, -69, -65, -52, -39, -26, -13, 0, 13, 25];
-const SATURATION = [0.5, 0.62, 0.72, 0.8, 0.86, 0.9, 0.92, 0.9, 0.88, 0.84, 0.78, 0.7];
-const LIGHTNESS = [0.05, 0.1, 0.17, 0.26, 0.33, 0.39, 0.44, 0.48, 0.52, 0.56, 0.6, 0.64];
-
-/** Number of gradient stops the fluid blends between. */
-export const PALETTE_STEPS = HUE_OFFSET.length;
+// Control points, not stops. Offsets are placed so the *visible* upper half
+// straddles the accent: a ramp that merely spans the accent renders far ahead
+// of it, because the bright high-speed end dominates (an earlier sweep of
+// -38°..+62° measured ~+50° off, turning amber into green). The span is wide
+// on purpose — that breadth is what reads as iridescence rather than a wash.
+const HUE_OFFSET = [-95, -90, -85, -80, -73, -55, -37, -19, -2, 17, 35, 51];
+const SATURATION = [0.5, 0.62, 0.72, 0.8, 0.86, 0.92, 0.88, 0.94, 0.86, 0.9, 0.8, 0.72];
+const LIGHTNESS = [0.05, 0.1, 0.17, 0.26, 0.32, 0.38, 0.45, 0.49, 0.55, 0.58, 0.62, 0.66];
 
 /**
- * Build the fluid's gradient stops from the accent colour. Every stop is
- * individually specified by the three arrays above; only the hue is relative
- * to the accent, so any theme keeps the same shape and shimmer.
+ * Stops actually handed to the shader. The control points above are resampled
+ * up to this many, because the palette becomes a linearly-filtered texture:
+ * with one texel per control point, every control point is a kink in the
+ * gradient, and those kinks show up on screen as hard seams between colours.
+ * Resampling along a smooth curve turns them into continuous transitions.
+ */
+const STOPS = 64;
+
+/** Number of gradient stops the fluid blends between. */
+export const PALETTE_STEPS = STOPS;
+
+/** Catmull-Rom: passes through every control point with a continuous slope,
+ *  so the curve neither kinks (linear) nor flattens at each point (smoothstep). */
+function spline(p0: number, p1: number, p2: number, p3: number, t: number): number {
+  const t2 = t * t;
+  const t3 = t2 * t;
+  return (
+    0.5 *
+    (2 * p1 + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3)
+  );
+}
+
+/** Sample a control-point array at t ∈ [0,1] along a smooth curve. */
+function sampleCurve(control: number[], t: number): number {
+  const x = t * (control.length - 1);
+  const i = Math.floor(x);
+  const at = (k: number) => control[Math.min(control.length - 1, Math.max(0, k))];
+  return spline(at(i - 1), at(i), at(i + 1), at(i + 2), x - i);
+}
+
+/**
+ * Build the fluid's gradient stops from the accent colour. The three control
+ * arrays above define the ramp's shape and are each smoothly resampled to
+ * STOPS entries; only the hue is relative to the accent, so any theme keeps
+ * the same shape and shimmer.
  */
 export function buildFluidPalette(accent: string): string[] {
   const [hue] = hexToHsl(accent);
-  return HUE_OFFSET.map((dh, i) => hslToHex(hue + dh, SATURATION[i], LIGHTNESS[i]));
+  return Array.from({ length: STOPS }, (_, i) => {
+    const t = i / (STOPS - 1);
+    return hslToHex(
+      hue + sampleCurve(HUE_OFFSET, t),
+      Math.min(1, Math.max(0, sampleCurve(SATURATION, t))),
+      Math.min(1, Math.max(0, sampleCurve(LIGHTNESS, t))),
+    );
+  });
 }

@@ -215,15 +215,15 @@ register({
     if (pick === 'reset') {
       setAccent(null);
       return [
-        { type: 'heading', text: '████████████  default' },
+        { type: 'heading', text: '████████████  default', color: THEMES.teal },
         { type: 'success', text: 'accent restored.' },
       ];
     }
     setAccent(THEMES[pick]);
-    // The swatch and headings below are painted with --accent, so the change
-    // shows up here as well as on the site behind the terminal.
+    // The swatch carries an explicit colour so this line still shows the theme
+    // it announced after a later `theme` call; live headings follow --accent.
     return [
-      { type: 'heading', text: `████████████  ${pick}` },
+      { type: 'heading', text: `████████████  ${pick}`, color: THEMES[pick] },
       { type: 'success', text: `accent → ${THEMES[pick]}` },
       { type: 'text', text: 'recolors headings here, plus buttons, links, section' },
       { type: 'text', text: 'numbers, timeline dots and the fluid background.' },
