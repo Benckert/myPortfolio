@@ -1,7 +1,7 @@
 /** Colour helpers for deriving the WebGL fluid palette from the site's accent
  *  tokens, so `theme <colour>` recolours the background instead of leaving it
  *  stranded on a hardcoded ramp. Tune the colours in src/config/fluid.ts. */
-import { fluidConfig } from '../config/fluid';
+import { fluid, clickSpark } from '../config/site';
 
 function hexToRgb(hex: string): [number, number, number] {
   let h = hex.trim().replace('#', '');
@@ -57,13 +57,20 @@ export function hslToHex(h: number, s: number, l: number): string {
  * ─────────────────────────────────────────────────────────────────────────── */
 
 /** Number of colours handed to the fluid. */
-export const PALETTE_STEPS = fluidConfig.stops.length;
+export const PALETTE_STEPS = fluid.stops.length;
 
 /** Build the fluid's colours from the accent: an analogous spread at roughly
  *  even lightness, so the effect reads as the theme colour with depth. */
 export function buildFluidPalette(accent: string): string[] {
   const [hue] = hexToHsl(accent);
-  return fluidConfig.stops.map(({ hueOffset, saturation, lightness }) =>
+  return fluid.stops.map(({ hueOffset, saturation, lightness }) =>
     hslToHex(hue + hueOffset, saturation, lightness),
   );
+}
+
+/** A colour that stands against the accent rather than blending into it —
+ *  used for the click spark, so the burst reads clearly in every theme. */
+export function buildSparkColor(accent: string): string {
+  const [hue] = hexToHsl(accent);
+  return hslToHex(hue + clickSpark.hueOffset, clickSpark.saturation, clickSpark.lightness);
 }

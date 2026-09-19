@@ -13,6 +13,9 @@ import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { ui } from '../../data/content';
 import { useLang } from '../../lib/useLang';
 import ClickSpark from '../reactbits/ClickSpark';
+import { useAccent } from '../../lib/useAccent';
+import { buildSparkColor } from '../../lib/palette';
+import { clickSpark } from '../../config/site';
 import './standard.css';
 
 export function StandardSite({
@@ -25,6 +28,10 @@ export function StandardSite({
 }) {
   const reduced = usePrefersReducedMotion();
   const lang = useLang();
+  const accent = useAccent();
+  // Complement of the accent, so the burst contrasts with whatever theme is
+  // active instead of disappearing into it.
+  const sparkColor = buildSparkColor(accent);
   const site = (
     <>
       <a className="skip-link" href="#home">{ui[lang].skipLink}</a>
@@ -49,7 +56,13 @@ export function StandardSite({
       {reduced ? (
         site
       ) : (
-        <ClickSpark sparkColor="#5eead4" sparkRadius={18} sparkCount={10} duration={500}>
+        <ClickSpark
+          sparkColor={sparkColor}
+          sparkSize={clickSpark.size}
+          sparkRadius={clickSpark.radius}
+          sparkCount={clickSpark.count}
+          duration={clickSpark.duration}
+        >
           {site}
         </ClickSpark>
       )}

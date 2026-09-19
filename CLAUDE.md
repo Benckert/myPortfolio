@@ -42,7 +42,7 @@ Three architectural ideas tie the codebase together:
 - `src/components/reactbits/` — vendored effect components used by the site (ClickSpark, LiquidEther, LogoLoop, StarBorder, TiltedCard).
 - `src/components/ui/` — shadcn/ui primitives (generated; e.g. `button.tsx`). Tailwind-classed, themed via the `--color-*` bridge above.
 - `src/lib/` — non-React logic: `commands`, `vfs`, `suggest`, `useTerminal`, `useMode`, `motion`, `types`, `utils` (`cn`).
-- `src/config/fluid.ts` — every knob for the WebGL fluid background (colours, opacity, resolution, frame cap, forces), each documented. `LiquidBackground` and `palette.ts` read from it; tune there rather than in the components.
+- `src/config/site.ts` — every tunable in the project, ordered and commented by area: fluid background, click spark, portraits, typewriter, terminal limits, accent themes. Components read from it; tune there rather than in the components. `LiquidEther` is unmodified upstream and is driven purely through its props, so keep it that way.
 
 ### Motion & accessibility
 

@@ -1,30 +1,3 @@
-/* Vendored from react-bits (github.com/DavidHDev/react-bits), then modified.
- * Everything else is upstream and is configured through props, from
- * src/config/fluid.ts. Keep this list current — it is the audit trail for how
- * far this file has drifted, and each entry has to justify itself.
- *
- *   1. `paused` prop. Stops the render loop while an opaque overlay (the
- *      terminal) covers the page. No upstream equivalent; saves the whole GPU
- *      cost of a background nobody can see.
- *   2. `maxFps` prop. Optional cap on the simulation rate. Defaults to 0,
- *      which is exactly upstream's behaviour, so it is inert unless set.
- *   3. `Mouse.resetDelta()`. Required *because of* (1): pausing stops update()
- *      but not the pointer listeners, so coords_old goes stale and the first
- *      frame back injects the whole travelled distance as one impulse.
- *   4. `Simulation.reset()`, called when resuming after a gap over 500ms.
- *      Dissipation here is per frame, not per second, so a throttled or
- *      suspended loop barely decays and returning to the tab resumes a stale,
- *      over-energetic field. Measured over a 6s backgrounded tab, this cut the
- *      energy jump on return from +1.99 to +0.79 against a 0.00 control.
- *      The gap is detected in the loop rather than only on visibilitychange
- *      because a backgrounded tab keeps rAF alive at about 1fps and does not
- *      reliably fire that event.
- *   5. External-force clamp no longer insets the force centre by the cursor
- *      radius. Upstream's inset is (cursorSize + 2) / (2 * resolution) pixels
- *      at every edge regardless of viewport — 170px for us, and still 102px at
- *      upstream's own defaults — inside which the pointer simply stops being
- *      followed. No prop can remove it; see the comment at the clamp itself.
- */
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import './LiquidEther.css';
@@ -49,10 +22,6 @@ export interface LiquidEtherProps {
   takeoverDuration?: number;
   autoResumeDelay?: number;
   autoRampDuration?: number;
-  /** Externally pause the render loop (e.g. while an opaque overlay covers it). */
-  paused?: boolean;
-  /** Cap the simulation's frame rate. 0 means uncapped (follow the display). */
-  maxFps?: number;
 }
 
 export default function LiquidEther({
@@ -74,9 +43,7 @@ export default function LiquidEther({
   autoIntensity = 2.2,
   takeoverDuration = 0.25,
   autoResumeDelay = 1000,
-  autoRampDuration = 0.6,
-  paused = false,
-  maxFps = 0
+  autoRampDuration = 0.6
 }: LiquidEtherProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const webglRef = useRef<any>(null);
@@ -84,7 +51,6 @@ export default function LiquidEther({
   const rafRef = useRef<number | null>(null);
   const intersectionObserverRef = useRef<IntersectionObserver | null>(null);
   const isVisibleRef = useRef(true);
-  const pausedRef = useRef(paused);
   const resizeRafRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -325,15 +291,6 @@ export default function LiquidEther({
       }
       onDocumentLeave() {
         this.isHoverInside = false;
-      }
-      /** Forget how far the pointer moved since the last frame. The pointer
-       *  listeners keep firing while the render loop is paused, but update()
-       *  does not run, so coords_old goes stale by however far the cursor
-       *  travelled — resuming would otherwise inject that whole distance as one
-       *  enormous velocity spike, which reads as a splash out of nowhere. */
-      resetDelta() {
-        this.coords_old.copy(this.coords);
-        this.diff.set(0, 0);
       }
       update() {
         if (this.takeoverActive) {
@@ -719,19 +676,16 @@ export default function LiquidEther({
       update(props: { cursor_size: number; mouse_force: number; cellScale: THREE.Vector2 }) {
         const forceX = (Mouse.diff.x / 2) * props.mouse_force;
         const forceY = (Mouse.diff.y / 2) * props.mouse_force;
-        // Keep the force centre inside the grid by a single cell, but do NOT
-        // inset it by the cursor's own radius. cursorSize is measured in
-        // simulation cells, so in clip space it is cursor_size / (resolution *
-        // viewportPx) — at resolution 0.3 that inset was 0.26 horizontally and
-        // 0.42 vertically, i.e. the pointer stopped being followed well before
-        // reaching the edge, and worse vertically because the grid is shorter
-        // that way. Lowering `resolution` for performance widened it further.
-        // The splat quad simply clips where it overhangs, which is what should
-        // happen when the cursor is at the very edge.
-        const limitX = 1 - props.cellScale.x * 2;
-        const limitY = 1 - props.cellScale.y * 2;
-        const centerX = Math.min(Math.max(Mouse.coords.x, -limitX), limitX);
-        const centerY = Math.min(Math.max(Mouse.coords.y, -limitY), limitY);
+        const cursorSizeX = props.cursor_size * props.cellScale.x;
+        const cursorSizeY = props.cursor_size * props.cellScale.y;
+        const centerX = Math.min(
+          Math.max(Mouse.coords.x, -1 + cursorSizeX + props.cellScale.x * 2),
+          1 - cursorSizeX - props.cellScale.x * 2
+        );
+        const centerY = Math.min(
+          Math.max(Mouse.coords.y, -1 + cursorSizeY + props.cellScale.y * 2),
+          1 - cursorSizeY - props.cellScale.y * 2
+        );
         const uniforms = (this.mouse.material as THREE.RawShaderMaterial).uniforms;
         uniforms.force.value.set(forceX, forceY);
         uniforms.center.value.set(centerX, centerY);
@@ -1002,21 +956,6 @@ export default function LiquidEther({
           this.fbos[key]!.setSize(this.fboSize.x, this.fboSize.y);
         }
       }
-      /** Empty every velocity/pressure buffer so the fluid restarts from rest.
-       *  Dissipation here happens per frame, not per second, so a loop that was
-       *  throttled or suspended barely decays: returning to the tab otherwise
-       *  resumes a field that is as energetic as it was minutes ago, which
-       *  reads as the effect misbehaving until new input settles it. */
-      reset() {
-        const renderer = Common.renderer;
-        if (!renderer) return;
-        const prev = renderer.getRenderTarget();
-        for (const key in this.fbos) {
-          renderer.setRenderTarget(this.fbos[key]!);
-          renderer.clear();
-        }
-        renderer.setRenderTarget(prev);
-      }
       update() {
         if (this.options.isBounce) {
           this.boundarySpace.set(0, 0);
@@ -1079,9 +1018,6 @@ export default function LiquidEther({
         );
         this.scene.add(this.output);
       }
-      reset() {
-        this.simulation.reset();
-      }
       resize() {
         this.simulation.resize();
       }
@@ -1101,10 +1037,7 @@ export default function LiquidEther({
       autoDriver: AutoDriver;
       output!: Output;
       running: boolean;
-      lastFrameTime: number;
-      frameInterval: number;
-      pausedAt: number;
-      _loop: (now?: number) => void;
+      _loop: () => void;
       _resize: () => void;
       _onVisibility: () => void;
 
@@ -1133,15 +1066,12 @@ export default function LiquidEther({
           const hidden = document.hidden;
           if (hidden) {
             this.pause();
-          } else if (isVisibleRef.current && !pausedRef.current) {
+          } else if (isVisibleRef.current) {
             this.start();
           }
         };
         document.addEventListener('visibilitychange', this._onVisibility);
         this.running = false;
-        this.lastFrameTime = 0;
-        this.pausedAt = 0;
-        this.frameInterval = maxFps > 0 ? 1000 / maxFps : 0;
       }
       init() {
         this.props.$wrapper.prepend(Common.renderer!.domElement);
@@ -1157,40 +1087,18 @@ export default function LiquidEther({
         Common.update();
         this.output.update();
       }
-      loop(now?: number) {
+      loop() {
         if (!this.running) return; // safety
-        // Optionally skip frames to cap the simulation's rate (maxFps). A cap
-        // saves GPU but makes motion visibly steppier, so 0 (uncapped) is the
-        // default.
-        const t = now ?? performance.now();
-        // A long gap means the loop was throttled or suspended — a backgrounded
-        // tab keeps requestAnimationFrame alive at roughly 1fps and does not
-        // always fire visibilitychange, so pause()/start() cannot be relied on
-        // to catch it. Whatever the cause, the pointer listeners kept running
-        // while update() did not, so coords_old is stale; resume from rest
-        // instead of injecting the whole accumulated delta as one impulse.
-        if (this.lastFrameTime > 0 && t - this.lastFrameTime > 500) {
-          Mouse.resetDelta();
-          this.output?.reset();
-        }
-        if (t - this.lastFrameTime >= this.frameInterval) {
-          this.lastFrameTime = t;
-          this.render();
-        }
+        this.render();
         rafRef.current = requestAnimationFrame(this._loop);
       }
       start() {
         if (this.running) return;
         this.running = true;
-        if (this.pausedAt > 0 && performance.now() - this.pausedAt > 500) this.output?.reset();
-        this.pausedAt = 0;
-        this.lastFrameTime = 0;
-        Mouse.resetDelta(); // see resetDelta(): avoids a spike on resume
         this._loop();
       }
       pause() {
         this.running = false;
-        this.pausedAt = performance.now();
         if (rafRef.current) {
           cancelAnimationFrame(rafRef.current);
           rafRef.current = null;
@@ -1251,7 +1159,7 @@ export default function LiquidEther({
     };
     applyOptionsFromProps();
 
-    if (!pausedRef.current) webgl.start();
+    webgl.start();
 
     // IntersectionObserver to pause rendering when not visible
     const io = new IntersectionObserver(
@@ -1260,7 +1168,7 @@ export default function LiquidEther({
         const isVisible = entry.isIntersecting && entry.intersectionRatio > 0;
         isVisibleRef.current = isVisible;
         if (!webglRef.current) return;
-        if (isVisible && !document.hidden && !pausedRef.current) {
+        if (isVisible && !document.hidden) {
           webglRef.current.start();
         } else {
           webglRef.current.pause();
@@ -1322,18 +1230,6 @@ export default function LiquidEther({
     autoResumeDelay,
     autoRampDuration
   ]);
-
-  // External pause/resume — resume only if the canvas is on-screen and the tab visible.
-  useEffect(() => {
-    pausedRef.current = paused;
-    const webgl = webglRef.current;
-    if (!webgl) return;
-    if (paused) {
-      webgl.pause();
-    } else if (isVisibleRef.current && !document.hidden) {
-      webgl.start();
-    }
-  }, [paused]);
 
   useEffect(() => {
     const webgl = webglRef.current;

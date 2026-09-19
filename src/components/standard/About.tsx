@@ -3,6 +3,7 @@ import { contents, ui } from '../../data/content';
 import { useLang } from '../../lib/useLang';
 import { fadeUp, revealViewport } from '../../lib/motion';
 import { Portrait } from './Portrait';
+import { portraits } from '../../config/site';
 
 export function About() {
   const lang = useLang();
@@ -34,7 +35,7 @@ export function About() {
           </div>
           {portraitUrl && (
             <div className="about__portrait-wrap">
-              <Portrait src={portraitUrl} name={name} size={240} />
+              <Portrait src={portraitUrl} name={name} {...portraits.about} />
             </div>
           )}
         </div>
