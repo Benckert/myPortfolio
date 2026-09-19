@@ -1,36 +1,31 @@
-import { lazy, Suspense, useMemo } from 'react';
+import { useMemo } from 'react';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { usePageActive } from '../../hooks/usePageActive';
-import { ErrorBoundary } from '../shared/ErrorBoundary';
 import { useAccent } from '../../lib/useAccent';
 import { buildFluidPalette } from '../../lib/palette';
 import { fluid } from '../../config/site';
-
-const LiquidEther = lazy(() => import('../reactbits/LiquidEther'));
+import { FluidCanvas } from '../effects/FluidCanvas';
 
 /**
- * One faint, fixed WebGL fluid layer behind every slide. Lazy-loads three.js so
- * it is code-split out of the main bundle, and renders nothing under reduced
- * motion.
+ * The animated layer behind every section.
  *
- * The component is stock react-bits, so it has no pause control: instead it is
- * unmounted whenever it should not be running — while the terminal covers it,
- * and whenever the page is hidden or the window loses focus. Unmounting
- * disposes the WebGL context outright, so nothing is simulated in the
- * background, and remounting starts the fluid from rest. That is deliberate:
- * dissipation happens per frame rather than per second, so a simulation left
- * running (or throttled) while nobody is watching comes back as energetic as it
- * was minutes ago.
+ * Under reduced motion it renders a single still frame rather than nothing, so
+ * the page keeps its depth without moving. While the terminal covers the site
+ * the canvas is unmounted, since there is no reason to draw what nobody sees.
+ *
+ * It is NOT unmounted merely because the window lost focus: the shader is
+ * stateless and its frame step is clamped, so an unfocused or throttled tab is
+ * already harmless, and leaving it mounted means it is simply still there when
+ * you look back rather than blinking out and rebuilding.
  *
  * Every value comes from src/config/site.ts — tune it there, not here.
  */
 export function LiquidBackground({ paused = false }: { paused?: boolean }) {
   const reduced = usePrefersReducedMotion();
-  const pageActive = usePageActive();
+  const active = usePageActive();
   const accent = useAccent();
-  // Memoised on `accent` so the WebGL context is rebuilt only on a theme change.
   const colors = useMemo(() => buildFluidPalette(accent), [accent]);
-  if (reduced) return null;
+  if (paused) return null;
   return (
     <div
       className="liquid-bg"
@@ -38,23 +33,20 @@ export function LiquidBackground({ paused = false }: { paused?: boolean }) {
       data-testid="liquid-bg"
       style={{ opacity: fluid.opacity }}
     >
-      {/* decorative only — if the WebGL chunk fails to load, show nothing */}
-      <ErrorBoundary>
-        <Suspense fallback={null}>
-          {!paused && pageActive && (
-            <LiquidEther
-              colors={colors}
-              resolution={fluid.resolution}
-              cursorSize={fluid.cursorSize}
-              mouseForce={fluid.mouseForce}
-              autoSpeed={fluid.autoSpeed}
-              autoIntensity={fluid.intensity}
-              autoResumeDelay={fluid.autoResumeDelay}
-              style={{ width: '100%', height: '100%' }}
-            />
-          )}
-        </Suspense>
-      </ErrorBoundary>
+      <FluidCanvas
+        colors={colors as [string, string, string]}
+        renderScale={fluid.renderScale}
+        scale={fluid.scale}
+        warp={fluid.warp}
+        speed={fluid.speed}
+        contrast={fluid.contrast}
+        pointerRadius={fluid.pointerRadius}
+        pointerStrength={fluid.pointerStrength}
+        pointerFade={fluid.pointerFade}
+        // A still frame for reduced motion, and while the page is in the
+        // background there is nothing to animate for.
+        still={reduced || !active}
+      />
     </div>
   );
 }

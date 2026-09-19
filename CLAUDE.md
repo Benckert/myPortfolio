@@ -39,10 +39,11 @@ Three architectural ideas tie the codebase together:
 
 - `src/components/standard/` — the marketing site: `StandardSite` composes `Nav → Hero → About → Projects → Experience → Skills → Contact → Footer` plus `BackToTop`. Section order is asserted by `site-order.test.tsx`.
 - `src/components/terminal/` — `Terminal`, `TerminalOutput` (renders typed `OutputLine[]`), `CommandChips`.
-- `src/components/reactbits/` — vendored effect components used by the site (ClickSpark, LiquidEther, LogoLoop, StarBorder, TiltedCard).
+- `src/components/reactbits/` — vendored effect components used by the site (ClickSpark, LogoLoop, StarBorder, TiltedCard).
+- `src/components/effects/` — the animated background, written here rather than taken from a library. `FluidCanvas` draws one full-screen fragment shader; it is **stateless** (each frame is a pure function of time and pointer position) and clamps its frame step, so an interrupted or throttled frame loop cannot corrupt it. That is the point: the fluid simulation it replaced kept a velocity field between frames and came back wrong from a backgrounded tab. Keep any replacement stateless for the same reason.
 - `src/components/ui/` — shadcn/ui primitives (generated; e.g. `button.tsx`). Tailwind-classed, themed via the `--color-*` bridge above.
 - `src/lib/` — non-React logic: `commands`, `vfs`, `suggest`, `useTerminal`, `useMode`, `motion`, `types`, `utils` (`cn`).
-- `src/config/site.ts` — every tunable in the project, ordered and commented by area: fluid background, click spark, portraits, typewriter, terminal limits, accent themes. Components read from it; tune there rather than in the components. `LiquidEther` is unmodified upstream and is driven purely through its props, so keep it that way.
+- `src/config/site.ts` — every tunable in the project, ordered and commented by area: fluid background, click spark, portraits, typewriter, terminal limits, accent themes. Components read from it; tune there rather than in the components.
 
 ### Motion & accessibility
 

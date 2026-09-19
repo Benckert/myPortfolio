@@ -22,70 +22,67 @@
 
 /* ── 1. Fluid background ────────────────────────────────────────────────────
  *
- * The component (LiquidEther, vendored from react-bits) is stock — everything
- * below is passed to it as ordinary props. Two behaviours are worth knowing
- * before tuning:
+ * Drawn by our own shader (src/components/effects/), not a library. It is
+ * stateless — each frame is computed from time and pointer position alone —
+ * which is why it cannot be corrupted by a backgrounded tab or a stalled
+ * frame loop the way a fluid simulation is.
  *
- * The shader uses fluid SPEED as both the colour index and the opacity, so slow
- * fluid is transparent and the dark page shows through. Darkness comes from
- * opacity, not from the colours — which is why every colour below is
- * mid-to-light. Adding dark ones double-counts the fade and creates visible
- * seams.
- *
- * The pointer stops being followed within a band at each edge, of width
- * (cursorSize + 2) / (2 × resolution) pixels — about 42px as configured. That
- * is the component's own clamp, so the only ways to shrink it are a smaller
- * `cursorSize` or a higher `resolution`.
+ * Colour: the three entries below are blended across the flow, so the
+ * background reads as the theme accent with variation rather than one tint.
+ * Keep their lightness fairly even; the layer's own `opacity` is what sets how
+ * present it is, so dark colours only mute it twice over.
  * ───────────────────────────────────────────────────────────────────────── */
 
 /** One fluid colour, relative to the current theme accent so `theme <colour>`
  *  recolours the background too. */
 export interface FluidStop {
   /** Hue offset from the accent, in degrees. Spread these for shimmer; stay
-   *  within roughly ±60° or it stops reading as the theme colour. The last
-   *  entry dominates, so the set should sit behind the accent, not ahead. */
+   *  within roughly ±60° or it stops reading as the theme colour. */
   hueOffset: number;
   /** 0–1, higher is more vivid. */
   saturation: number;
-  /** 0–1. Keep these close together — even lightness is what stops the
-   *  shader's speed clamp showing as a hard edge. */
+  /** 0–1. Keep these close together. */
   lightness: number;
 }
 
 export const fluid = {
   /** Opacity of the whole layer. The most direct "more / less present" dial. */
-  opacity: 0.45,
+  opacity: 0.5,
 
-  /** Colours, blended from slow fluid to fast. Three is what the component is
-   *  designed around; more simply gives a longer gradient. */
+  /** Three colours, blended across the flow. */
   stops: [
-    { hueOffset: -55, saturation: 0.85, lightness: 0.44 },
-    { hueOffset: -25, saturation: 0.75, lightness: 0.56 },
-    { hueOffset: 10, saturation: 0.8, lightness: 0.5 },
+    { hueOffset: -50, saturation: 0.8, lightness: 0.42 },
+    { hueOffset: -18, saturation: 0.72, lightness: 0.54 },
+    { hueOffset: 16, saturation: 0.78, lightness: 0.48 },
   ] satisfies FluidStop[],
 
-  /** Simulation grid scale, 0.1–0.5. The main performance lever: lower is
-   *  cheaper but coarser, and widens the edge band described above. */
-  resolution: 0.5,
+  /** Render scale, 0.1–1. The main performance dial: the canvas is drawn at
+   *  this fraction of its size and stretched up. The flow is soft enough that
+   *  0.5 is indistinguishable from 1 while costing a quarter as much. */
+  renderScale: 0.5,
 
-  /** Radius of the cursor's influence, in simulation cells. Also sets the
-   *  edge band — halving this halves the band. */
-  cursorSize: 40,
+  /** Spatial frequency — higher means more, smaller shapes. */
+  scale: 1.25,
 
-  /** How hard the cursor pushes. Lower is calmer; very high values make fast
-   *  swipes saturate into a flat slab of the last colour. */
-  mouseForce: 16,
+  /** How hard the flow folds back on itself. Higher is more marbled, lower is
+   *  smoother and more cloud-like. */
+  warp: 2.3,
 
-  /** Speed of the automatic "ghost cursor" that animates the page when nobody
-   *  is interacting with it. */
-  autoSpeed: 0.4,
+  /** Animation rate. */
+  speed: 0.5,
 
-  /** Multiplies the ghost cursor's velocity. Doubles as a vividness dial,
-   *  because it decides how far up the colour list the fluid reaches. */
-  intensity: 2.0,
+  /** How sharply the flow fades into the page background. Higher gives
+   *  tighter, more defined shapes with more dark space between them. */
+  contrast: 1.7,
 
-  /** Milliseconds of no pointer input before the ghost cursor takes over. */
-  autoResumeDelay: 1000,
+  /** Size of the bulge that follows the cursor. */
+  pointerRadius: 1.1,
+
+  /** How far the cursor pushes the flow aside. */
+  pointerStrength: 0.55,
+
+  /** Seconds for the cursor's influence to fade after it stops moving. */
+  pointerFade: 1.5,
 } as const;
 
 /* ── 2. Click spark ─────────────────────────────────────────────────────── */
