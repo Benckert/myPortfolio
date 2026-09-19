@@ -19,12 +19,12 @@ there — both the standard site and the terminal update automatically.
 Add your resume by placing `resume.pdf` in `public/` (matches the default
 `resumeUrl`).
 
-## Fluid background
+## Configuration
 
-Every setting for the animated WebGL background — colours, opacity, resolution,
-frame cap, cursor force — lives in [`src/config/fluid.ts`](src/config/fluid.ts),
-each with a comment explaining what it does and which way to turn it. Preview
-the colours for all five themes without running the site:
+Every tunable value — the fluid background, click spark, portraits, typewriter,
+terminal limits and accent themes — lives in
+[`src/config/site.ts`](src/config/site.ts), ordered and commented by area.
+Preview the fluid colours for all five themes without running the site:
 
 ```bash
 npx vite-node scripts/palette-preview.mjs preview.html

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
+import { typewriter } from '../../config/site';
 
 interface TypewriterProps {
   text: string;
@@ -10,7 +11,12 @@ interface TypewriterProps {
 
 /** Types `text` once, then rests with a blinking caret. The typed span is
  *  aria-hidden — wrap it in an element that carries the real accessible name. */
-export function Typewriter({ text, speed = 70, startDelay = 300, className }: TypewriterProps) {
+export function Typewriter({
+  text,
+  speed = typewriter.speed,
+  startDelay = typewriter.startDelay,
+  className,
+}: TypewriterProps) {
   const reduced = usePrefersReducedMotion();
   const [count, setCount] = useState(reduced ? text.length : 0);
 

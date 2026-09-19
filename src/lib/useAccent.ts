@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from 'react';
 import { cssVar } from './cssVar';
+import { defaultAccent } from '../config/site';
 
-const DEFAULT_ACCENT = '#5eead4';
+const DEFAULT_ACCENT = defaultAccent;
 const listeners = new Set<() => void>();
 
 /** Null means "no override" — the token from globals.css is in effect. */

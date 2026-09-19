@@ -3,6 +3,7 @@ import { suggestCommand } from './suggest';
 import { listFiles, readFile, ROOT_ENTRIES } from './vfs';
 import { getLang, setLang } from './useLang';
 import { setAccent } from './useAccent';
+import { themes as THEMES } from '../config/site';
 
 export const registry: Record<string, Command> = {};
 
@@ -193,14 +194,6 @@ register({
 });
 
 // ── Easter eggs ──────────────────────────────────────────────
-
-const THEMES: Record<string, string> = {
-  teal: '#5eead4',
-  amber: '#fbbf24',
-  violet: '#a78bfa',
-  green: '#4ade80',
-  rose: '#fb7185',
-};
 
 register({
   name: 'theme',

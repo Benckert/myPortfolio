@@ -3,6 +3,7 @@ import { contents } from '../data/content';
 import { getLang } from './useLang';
 import type { OutputLine } from './types';
 import { runCommand, commandNames, argCandidates } from './commands';
+import { terminal as terminalConfig } from '../config/site';
 
 export interface ScrollbackEntry {
   id: number;
@@ -32,9 +33,9 @@ function longestCommonPrefix(strings: string[]): string {
 }
 
 const HISTORY_KEY = 'portfolio-terminal-history';
-const HISTORY_MAX = 50;
+const HISTORY_MAX = terminalConfig.historyLimit;
 const SCROLLBACK_KEY = 'portfolio-terminal-scrollback';
-const SCROLLBACK_MAX = 100;
+const SCROLLBACK_MAX = terminalConfig.scrollbackLimit;
 
 function loadScrollback(): ScrollbackEntry[] {
   try {

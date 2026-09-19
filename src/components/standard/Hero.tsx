@@ -4,6 +4,7 @@ import { useLang } from '../../lib/useLang';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { cssVar } from '../../lib/cssVar';
 import { Portrait } from './Portrait';
+import { portraits } from '../../config/site';
 import { Typewriter } from './Typewriter';
 import { Spotlight } from './Spotlight';
 import StarBorder from '../reactbits/StarBorder';
@@ -62,13 +63,7 @@ export function Hero({ onOpenTerminal }: { onOpenTerminal: () => void }) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.18 }}
           >
-            <Portrait
-              src={portraitUrl}
-              name={name}
-              size={320}
-              scaleOnHover={1.16}
-              rotateAmplitude={16}
-            />
+            <Portrait src={portraitUrl} name={name} {...portraits.hero} />
           </motion.div>
         )}
       </div>
