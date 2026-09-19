@@ -2,12 +2,9 @@
  * Renders the fluid palette for every theme to a standalone HTML page, so the
  * ramp can be judged by eye and by number instead of by squinting at the site.
  *
- * Each theme shows the ramp twice:
- *   "the ramp"  — every stop, opaque, plus a labelled sample of the values.
- *   "on screen" — the same colours as the shader actually composites them:
- *                 position is fluid speed, which is both the palette index and
- *                 the opacity. This row is what you really see; the left of it
- *                 is near-invisible by design.
+ * Each theme shows the colours twice: opaque, and blended the way the shader
+ * composites them over the page — the flow fades to transparent where it is
+ * thin, so the left of that bar is faint by design.
  *
  * Usage: npx vite-node scripts/palette-preview.mjs [outfile] [--artifact]
  *   --artifact  omit the doctype/meta wrapper, for publishing as an Artifact
@@ -84,9 +81,9 @@ const sections = Object.entries(THEMES)
       <p class="lbl">the colours, opaque</p>
       <div class="bar">${ramp}</div>
       <div class="chips">${chips}</div>
-      <p class="lbl">as the shader composites it — position is fluid speed, alpha follows speed</p>
+      <p class="lbl">as the shader composites it over the page</p>
       <div class="bar">${bar}</div>
-      <div class="axis"><span>slow · transparent</span><span>fast · opaque</span></div>
+      <div class="axis"><span>thin · transparent</span><span>dense · opaque</span></div>
     </section>`;
   })
   .join('');
@@ -139,9 +136,9 @@ const body = `<title>Fluid Palette</title>
       <span class="k">buildFluidPalette()</span>. Retune the <span class="k">STOPS</span>
       array in <span class="k">src/lib/palette.ts</span> — hue offset, saturation and
       lightness per colour — then re-run the generator.</p>
-    <p class="note">The lower bar in each pair is the honest one. LiquidEther indexes these
-      colours by fluid speed and reuses that value as opacity, so the slow end is barely
-      visible no matter what sits there — judge the palette by its right half.</p>
+    <p class="note">The lower bar in each pair is the honest one: the shader fades the flow
+      out where it thins, so the faint end is faint no matter what colour sits there —
+      judge the palette by its stronger half.</p>
   </header>
   ${sections}
 </div>`;
