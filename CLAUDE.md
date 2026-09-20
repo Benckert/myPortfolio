@@ -21,7 +21,7 @@ npx vitest run -t "Tab completes"            # by test name substring
 
 `npm run build` is the type-check gate — there is no separate lint step. TypeScript runs in `strict` mode with `noUnusedLocals`/`noUnusedParameters`, so unused vars fail the build.
 
-Add shadcn/ui components with `npx shadcn@latest add <name>` — they land in `src/components/ui/`. There is no MCP server configured in this repo for shadcn or reactbits; reactbits components are vendored by hand into `src/components/reactbits/` (upstream: github.com/DavidHDev/react-bits).
+Add shadcn/ui components with `npx shadcn@latest add <name>` — they land in `src/components/ui/`. The repo's `.mcp.json` also registers the **shadcn MCP server** (`npx -y shadcn@latest mcp`), so the registry can be browsed without shelling out; it is committed to the repo on purpose, since remote sessions clone the repo fresh and never see MCP servers configured on a local machine. Claude Code loads it at startup, so a newly added server needs a session restart. There is no MCP server for reactbits — those components are vendored by hand into `src/components/reactbits/` (upstream: github.com/DavidHDev/react-bits).
 
 ## Architecture
 
