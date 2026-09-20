@@ -21,7 +21,22 @@ npx vitest run -t "Tab completes"            # by test name substring
 
 `npm run build` is the type-check gate — there is no separate lint step. TypeScript runs in `strict` mode with `noUnusedLocals`/`noUnusedParameters`, so unused vars fail the build.
 
-Add shadcn/ui components with `npx shadcn@latest add <name>` — they land in `src/components/ui/`. The repo's `.mcp.json` also registers the **shadcn MCP server** (`npx -y shadcn@latest mcp`), so the registry can be browsed without shelling out; it is committed to the repo on purpose, since remote sessions clone the repo fresh and never see MCP servers configured on a local machine. Claude Code loads it at startup, so a newly added server needs a session restart. React Bits has no MCP server of its own, but `components.json` registers it as a shadcn registry (`"@react-bits": "https://reactbits.dev/r/{name}.json"`), so the shadcn MCP tools and `npx shadcn@latest add @react-bits/<name>` can pull from it — when the network allows. Sandboxed remote sessions may have `reactbits.dev` blocked at the egress proxy (a 403 on CONNECT); that is a network policy, not a config error, and no amount of registry setup works around it. In that case fall back to `raw.githubusercontent.com/DavidHDev/react-bits/main/...`, which is typically reachable: `src/constants/Categories.js` lists every component by category, and the sources live under `src/content/<Category>/`. Either way the components end up vendored by hand into `src/components/reactbits/` (upstream: github.com/DavidHDev/react-bits).
+Add shadcn/ui components with `npx shadcn@latest add <name>` — they land in `src/components/ui/`. The repo's `.mcp.json` also registers the **shadcn MCP server** (`npx -y shadcn@latest mcp`), so the registry can be browsed without shelling out; it is committed to the repo on purpose, since remote sessions clone the repo fresh and never see MCP servers configured on a local machine. Claude Code loads it at startup, so a newly added server needs a session restart. React Bits has no MCP server of its own, but `components.json` registers it as a shadcn registry (`"@react-bits": "https://reactbits.dev/r/{name}.json"`), so the shadcn MCP tools and `npx shadcn@latest add @react-bits/<name>` can pull from it — when the network allows. Either way the components end up vendored into `src/components/reactbits/` (upstream: github.com/DavidHDev/react-bits).
+
+### React Bits offline (`scripts/reactbits.mjs`)
+
+Sandboxed remote sessions have `reactbits.dev` blocked at the egress proxy (a 403 on CONNECT), and `ui.shadcn.com` with it — so `npx shadcn@latest add @react-bits/<name>` fails there, and so does plain `npx shadcn@latest add @shadcn/<name>`, which fetches base colours from `ui.shadcn.com`. That is a network policy, not a config error, and no amount of registry setup works around it.
+
+github.com and the npm registry *are* reachable, and upstream ships the exact same shadcn registry JSON it serves at `reactbits.dev/r/` inside its own repo under `public/r/<Component>-<LANG>-<STYLE>.json`. `scripts/reactbits.mjs` reads it from a shallow clone, so the full catalogue stays available with `reactbits.dev` blocked:
+
+```bash
+node scripts/reactbits.mjs sync                         # clone/update the mirror (.cache/react-bits, gitignored)
+node scripts/reactbits.mjs list --category Backgrounds  # 57 backgrounds; omit --category for all 179 items
+node scripts/reactbits.mjs view Aurora                  # description, files, npm deps
+node scripts/reactbits.mjs add Aurora                   # vendors into src/components/reactbits/
+```
+
+`--variant` selects the registry flavour (`TS-TW` default, also `TS-CSS`/`JS-TW`/`JS-CSS`); `--force` overwrites existing files. `add` **prints** the npm dependencies rather than installing them — run the `npm install` it reports yourself. Files are vendored flat into `src/components/reactbits/`, matching how `ClickSpark`/`LogoLoop`/`StarBorder`/`TiltedCard` already live there. `sync` is implicit on first use, so `list` works from a cold checkout. Categories come from upstream's own `src/constants/Categories.js`, so the listing tracks the site's sidebar.
 
 ## Architecture
 

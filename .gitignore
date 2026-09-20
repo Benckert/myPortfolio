@@ -5,3 +5,6 @@ dist/
 
 # subagent-driven-development scratch
 .superpowers/
+
+# react-bits registry mirror (scripts/reactbits.mjs)
+.cache/
